@@ -1,0 +1,16 @@
+{
+  "name": "install-peerdeps",
+  "version": "1.0.0",
+  "description": "Quickly install peerDeps",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/nathanhleung/install-peerdeps",
+    "type": "git"
+  },
+  "dependencies": {
+    "has-yarn": "^1.0.0",
+    "npm": "^4.0.5"
+  },
+  "author": "nathanhleung",
+  "license": "MIT"
+}
