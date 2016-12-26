@@ -1,16 +1,26 @@
 {
   "name": "install-peerdeps",
-  "version": "1.0.0",
-  "description": "Quickly install peerDeps",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "CLI to automatically install peerDeps",
+  "main": "cli.js",
   "repository": {
     "url": "https://github.com/nathanhleung/install-peerdeps",
     "type": "git"
   },
   "dependencies": {
+    "commander": "^2.9.0",
     "has-yarn": "^1.0.0",
     "npm": "^4.0.5"
   },
+  "keywords": [
+    "install",
+    "peerdeps",
+    "automatically",
+    "yarn",
+    "npm",
+    "airbnb",
+    "eslint"
+  ],
   "author": "nathanhleung",
   "license": "MIT"
 }

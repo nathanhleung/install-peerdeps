@@ -96,6 +96,10 @@ function installPeerDeps(packageName, version, cb) {
   });
 }
 
+export default installPeerDeps;
+
+// test
+/*
 const packageName = 'eslint-config-airbnb';
 installPeerDeps(packageName, (err) => {
   if (err) {
@@ -103,3 +107,4 @@ installPeerDeps(packageName, (err) => {
   }
   console.log(`${packageName} and its correspoding peerDeps were installed successfully.`);
 });
+*/
