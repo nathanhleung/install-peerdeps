@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "CLI to automatically install peerDeps",
   "main": "cli.js",
+  "preferGlobal": true,
+  "bin": {
+    "install-peerdeps": "cli.js"
+  },
   "repository": {
     "url": "https://github.com/nathanhleung/install-peerdeps",
     "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/nathanhleung/install-peerdeps/issues"
   },
   "dependencies": {
     "cli-color": "^1.1.0",
