@@ -23,6 +23,8 @@ program
 
 console.log(clc.bold(`${name} v${version}`));
 
+console.log(program.args)
+
 if (program.args.length > 1) {
   console.log(`${errorText} Please specify only one package at a time to install with peerDeps.`);
   process.exit(1);
@@ -36,7 +38,7 @@ if (program.args.length === 0) {
 
 const packageString = program.args[0];
 // eslint-disable-next-line no-useless-escape
-const parsed = packageString.match(/([@\w-]+)(@([\d\.]+))?/);
+const parsed = packageString.match(/([@\/\w-]+)(@([\d\.]+))?/);
 const packageName = parsed[1];
 const packageVersion = parsed[3];
 
