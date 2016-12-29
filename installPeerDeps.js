@@ -6,13 +6,7 @@ const npm = require('npm');
 const hasYarn = require('has-yarn');
 const spawn = require('child_process').spawn;
 
-function installPeerDeps(packageName, version, cb) {
-  // If `version` is a function, that means it's the callback
-  // Use 'latest' tag as default for version
-  if (typeof version === 'function') {
-    cb = version;
-    version = 'latest';
-  }
+function installPeerDeps(packageName, version, dev, cb) {
   // npm.load is required before running any other npm functions
   npm.load((err, npm) => {
     if (err) {
@@ -21,7 +15,14 @@ function installPeerDeps(packageName, version, cb) {
     // Access npm registry API
     const registry = npm.registry;
     // JSON data about a package is available at this endpoint
-    const packageUri = `https://registry.npmjs.com/${packageName}`;
+    // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js for scope modules help
+    let encodedPackageName;
+    if (packageName[0] === '@') {
+      encodedPackageName = `@${encodeURIComponent(packageName.substring(1))}`;
+    } else {
+      encodedPackageName = encodeURIComponent(packageName);
+    }
+    const packageUri = `https://registry.npmjs.com/${encodedPackageName}`;
 
     registry.get(packageUri, { auth: undefined }, (err, data) => {
       if (err) {
@@ -54,7 +55,10 @@ function installPeerDeps(packageName, version, cb) {
       // Construct command based on package manager of current project
       const packageManager = hasYarn() ? 'yarn' : 'npm';
       const subcommand = packageManager === 'yarn' ? 'add' : 'install';
-      const flag = packageManager === 'yarn' ? '--dev' : '--save-dev';
+      let devFlag = packageManager === 'yarn' ? '--dev' : '--save-dev';
+      if (!dev) {
+        devFlag = '';
+      }
       const isWindows = (process.platform === 'win32');
       let extra = '';
       if (isWindows) {
@@ -71,11 +75,11 @@ function installPeerDeps(packageName, version, cb) {
       // cries foul so we'll split the packagesString
       // into an array of individual packages
       args = args.concat(packagesString.split(' '));
-      args = args.concat(flag);
+      args = args.concat(devFlag);
 
       //  Show user the command that's running
       console.log(`Installing peerdeps for ${packageName}@${version}.`);
-      console.log(`${packageManager} ${subcommand} ${packagesString} ${flag}\n`);
+      console.log(`${packageManager} ${subcommand} ${packagesString} ${devFlag}\n`);
       // Spawn install process
       const installProcess = spawn(packageManager + extra, args, {
         cwd: process.cwd(),

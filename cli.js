@@ -1,3 +1,7 @@
+/* eslint-disable strict */
+
+'use strict';
+
 const program = require('commander');
 const clc = require('cli-color');
 const pkg = require('./package.json');
@@ -18,12 +22,11 @@ function printPackageFormatError() {
 program
   .version(version)
   .description('Installs the specified package along with correct peerDeps.')
+  .option('-d, --dev', 'Install the package as a devDependency')
   .usage('<package>[@<version], default version is \'latest\'')
   .parse(process.argv);
 
 console.log(clc.bold(`${name} v${version}`));
-
-console.log(program.args)
 
 if (program.args.length > 1) {
   console.log(`${errorText} Please specify only one package at a time to install with peerDeps.`);
@@ -38,10 +41,17 @@ if (program.args.length === 0) {
 
 const packageString = program.args[0];
 // eslint-disable-next-line no-useless-escape
-const parsed = packageString.match(/([@\/\w-]+)(@([\d\.]+))?/);
-const packageName = parsed[1];
+const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\.\w]+))?$/);
+console.log(parsed);
+let packageName;
+if (packageString[0] === '@') {
+  packageName = `@${parsed[1]}`;
+} else {
+  packageName = parsed[1];
+}
 const packageVersion = parsed[3];
 
+/* Tags can really be anything, so no version/tag validation for now
 if (typeof packageVersion !== 'undefined') {
   const parsedVersion = packageVersion.match(/\d+\.\d+\.\d+/);
   if (typeof parsedVersion[0] === 'undefined') {
@@ -49,13 +59,14 @@ if (typeof packageVersion !== 'undefined') {
     process.exit(1);
   }
 }
+*/
 
 if (!packageName) {
   printPackageFormatError();
   process.exit(1);
 }
 
-installPeerDeps(packageName, packageVersion || 'latest', (err) => {
+installPeerDeps(packageName, packageVersion || 'latest', program.dev, (err) => {
   if (err) {
     console.log(`${errorText} ${err.message}`);
     process.exit(1);
