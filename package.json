@@ -8,6 +8,7 @@
     "type": "git"
   },
   "dependencies": {
+    "cli-color": "^1.1.0",
     "commander": "^2.9.0",
     "has-yarn": "^1.0.0",
     "npm": "^4.0.5"
@@ -22,5 +23,12 @@
     "eslint"
   ],
   "author": "nathanhleung",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "3.9.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "2.1.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "6.6.0"
+  }
 }
