@@ -18,7 +18,7 @@ function printPackageFormatError() {
 program
   .version(version)
   .description('Installs the specified package along with correct peerDeps.')
-  .usage('<package>[@<version], default version  is \'latest\'')
+  .usage('<package>[@<version], default version is \'latest\'')
   .parse(process.argv);
 
 console.log(clc.bold(`${name} v${version}`));
@@ -36,7 +36,7 @@ if (program.args.length === 0) {
 
 const packageString = program.args[0];
 // eslint-disable-next-line no-useless-escape
-const parsed = packageString.match(/([\w-]+)(@([\d\.]+))?/);
+const parsed = packageString.match(/([@\w-]+)(@([\d\.]+))?/);
 const packageName = parsed[1];
 const packageVersion = parsed[3];
 
