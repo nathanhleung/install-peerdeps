@@ -32,7 +32,7 @@ However, the above solution is hard to remember, and doesn't work on Windows. Th
 
 ## Usage
 ```
-Usage: install-peerdeps <package>[@<version], default version is 'latest'
+Usage: install-peerdeps <package>[@<version>], default version is 'latest'
 
 Installs the specified package along with correct peerDeps.
 
