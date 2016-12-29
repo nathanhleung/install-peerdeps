@@ -1,7 +1,22 @@
 # install-peerdeps [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps)
 A command-line interface to install an NPM package and its peer dependencies automatically.
 
-NPM v3 doesn't install peerDeps automatically anymore, and it can be a hassle to install them all — now you can, with `install-peerdeps`! Also works with Yarn.
+NPM v3 doesn't install peerDeps automatically anymore, and it can be a hassle to install them all — now you can, with `install-peerdeps`. Also works with Yarn.
+
+## Quick Start
+```
+# If you're using npm
+npm install -g install-peerdeps
+
+# If you're using yarn
+yarn global add install-peerdeps
+
+cd my-project-directory
+
+install-peerdeps <package>[@<version>]
+```
+
+The specified package along with its peer dependencies will be installed.
 
 ## Why
 It's true that on Linux you can run something like this to automatically install peerDeps:
@@ -13,7 +28,7 @@ It's true that on Linux you can run something like this to automatically install
 )
 ```
 
-However, the above solution doesn't work on Windows, so you can use this tool instead.
+However, the above solution is hard to remember, and doesn't work on Windows. This tool aims to solve both of these problems.
 
 ## Usage
 ```
@@ -28,29 +43,41 @@ Options:
   -d, --dev      Install the package as a devDependency
 ```
 
-## Example
+## Examples
 ### `eslint-config-airbnb`
 This package requires quite a few peer dependencies. Here's what you'd do to install them all:
 
-`install-peerdeps eslint-config-airbnb@latest --dev`
+`install-peerdeps eslint-config-airbnb --dev`
 
 `install-peerdeps` will automatically detect whether you're using Yarn or NPM and run the appropriate command.
 
-If you have NPM: `npm install eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --save-dev`
+```
+# If you're using npm
+npm install eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
+-react@^6.6.0 --save-dev
 
-If you have Yarn: `yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --dev`
+# If you're using yarn
+yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
+-react@^6.6.0 --dev
+```
 
 ### `@angular/core`
 Angular also requires a few peer dependencies.
 
 `install-peerdeps @angular/core` should do the trick.
 
-If you want to try out the new beta, run `install-peerdeps @angular/core@next`.
+What if you want to try a beta version? Run `install-peerdeps @angular/core@next`.
 
-## Todo
-* work on cli
+This tool will automatically install the version corresponding to the tag, as well as its peer dependencies:
+
+```
+...
+Installing peerdeps for @angular/core@4.0.0-beta.1.
+yarn add @angular/core rxjs@^5.0.1 zone.js@^0.7.2
+
+yarn add v0.18.1
+...
+```
 
 ## License
 [MIT](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)

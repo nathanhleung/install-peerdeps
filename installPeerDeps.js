@@ -6,6 +6,14 @@ const npm = require('npm');
 const hasYarn = require('has-yarn');
 const spawn = require('child_process').spawn;
 
+// Some constants so we get an undefined
+// error instead of a silent typo in case
+// we mispell one of these
+const C = {
+  npm: 'npm',
+  yarn: 'yarn',
+};
+
 function installPeerDeps(packageName, version, dev, cb) {
   // npm.load is required before running any other npm functions
   npm.load((err, npm) => {
@@ -53,9 +61,9 @@ function installPeerDeps(packageName, version, dev, cb) {
         packagesString += ` ${depName}@${peerDepsVersionMap[depName]}`;
       });
       // Construct command based on package manager of current project
-      const packageManager = hasYarn() ? 'yarn' : 'npm';
-      const subcommand = packageManager === 'yarn' ? 'add' : 'install';
-      let devFlag = packageManager === 'yarn' ? '--dev' : '--save-dev';
+      const packageManager = hasYarn() ? C.yarn : C.npm;
+      const subcommand = packageManager === C.yarn ? 'add' : 'install';
+      let devFlag = packageManager === C.yarn ? '--dev' : '--save-dev';
       if (!dev) {
         devFlag = '';
       }
@@ -75,7 +83,16 @@ function installPeerDeps(packageName, version, dev, cb) {
       // cries foul so we'll split the packagesString
       // into an array of individual packages
       args = args.concat(packagesString.split(' '));
-      args = args.concat(devFlag);
+      // If devFlag is empty, then we'd be adding an empty arg
+      // That causes the command to fail
+      if (devFlag !== '') {
+        args = args.concat(devFlag);
+      }
+      // If we're using NPM, and there's no dev flag,
+      // make sure to save deps in package.json
+      if (devFlag === '' && packageManager === C.npm) {
+        args = args.concat('--save');
+      }
 
       //  Show user the command that's running
       console.log(`Installing peerdeps for ${packageName}@${version}.`);
