@@ -29,7 +29,8 @@ Options:
 ```
 
 ## Example
-`eslint-config-airbnb` requires quite a few peer dependencies. Here's what you'd do to install them all:
+### `eslint-config-airbnb`
+This package requires quite a few peer dependencies. Here's what you'd do to install them all:
 
 `install-peerdeps eslint-config-airbnb@latest --dev`
 
@@ -41,9 +42,12 @@ If you have NPM: `npm install eslint-config-airbnb eslint@^3.9.1 eslint-plugin-j
 If you have Yarn: `yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
 -react@^6.6.0 --dev`
 
-`@angular/core` also requires some peer dependencies.
+### `@angular/core`
+Angular also requires a few peer dependencies.
 
 `install-peerdeps @angular/core` should do the trick.
+
+If you want to try out the new beta, run `install-peerdeps @angular/core@next`.
 
 ## Todo
 * work on cli

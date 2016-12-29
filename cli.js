@@ -42,7 +42,6 @@ if (program.args.length === 0) {
 const packageString = program.args[0];
 // eslint-disable-next-line no-useless-escape
 const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\.\w]+))?$/);
-console.log(parsed);
 let packageName;
 if (packageString[0] === '@') {
   packageName = `@${parsed[1]}`;
