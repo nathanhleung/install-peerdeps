@@ -2,7 +2,11 @@
   "name": "install-peerdeps",
   "version": "1.0.2",
   "description": "CLI to automatically install peerDeps",
-  "main": "cli.js",
+  "main": "lib/cli.js",
+  "scripts": {
+    "babel": "babel src -d lib",
+    "version": "npm run babel"
+  },
   "preferGlobal": true,
   "bin": {
     "install-peerdeps": "cli.js"
@@ -13,12 +17,6 @@
   },
   "bugs": {
     "url": "https://github.com/nathanhleung/install-peerdeps/issues"
-  },
-  "dependencies": {
-    "cli-color": "^1.1.0",
-    "commander": "^2.9.0",
-    "has-yarn": "^1.0.0",
-    "npm": "^4.0.5"
   },
   "keywords": [
     "install",
@@ -31,11 +29,19 @@
   ],
   "author": "nathanhleung",
   "license": "MIT",
+  "dependencies": {
+    "cli-color": "^1.1.0",
+    "commander": "^2.9.0",
+    "has-yarn": "^1.0.0",
+    "promptly": "^2.1.0"
+  },
   "devDependencies": {
-    "eslint": "3.9.1",
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0",
+    "eslint": "^3.9.1",
     "eslint-config-airbnb": "^13.0.0",
-    "eslint-plugin-import": "2.1.0",
-    "eslint-plugin-jsx-a11y": "2.2.3",
-    "eslint-plugin-react": "6.6.0"
+    "eslint-plugin-import": "^2.1.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.6.0"
   }
 }
