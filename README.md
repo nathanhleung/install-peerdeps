@@ -19,7 +19,7 @@ install-peerdeps <package>[@<version>]
 The specified package along with its peer dependencies will be installed.
 
 ## Why
-It's true that on Linux you can run something like this to automatically install peerDeps:
+It's true that on Linux you can run something like this to automatically install peerDeps (taken from [AirBnb's eslint config repo](https://github.com/airbnb/javascript)):
 
 ```
 (
@@ -51,7 +51,7 @@ This package requires quite a few peer dependencies. Here's what you'd do to ins
 
 `install-peerdeps eslint-config-airbnb --dev`
 
-`install-peerdeps` will automatically detect whether you're using Yarn or NPM and run the appropriate command.
+`install-peerdeps` will automatically detect whether you're using Yarn. If you are, it'll prompt you as to whether you want to use Yarn or npm to install the packages.
 
 ```
 # If you're using npm
