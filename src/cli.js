@@ -90,7 +90,7 @@ if (program.yarn) {
 }
 
 if (program.yarn && program.silent) {
-  console.log(`${errorText} Option --silent cannot be used with Yarn.`);
+  console.log(`${errorText} Option --silent cannot be used with --yarn.`);
   process.exit(1);
 }
 

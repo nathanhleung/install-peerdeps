@@ -12,6 +12,12 @@ function getPackageData(encodedPackageName) {
       hostname: 'registry.npmjs.com',
       path: `/${encodedPackageName}`,
     }, (res) => {
+      if (res.statusCode === 404) {
+        return reject(new Error('That package doesn\'t exist. Please try another.'));
+      }
+      if (res.statusCode !== 200) {
+        return reject(new Error('There was a problem connecting to the registry.'));
+      }
       res.setEncoding('utf8');
       let rawData = '';
       res.on('data', (chunk) => {

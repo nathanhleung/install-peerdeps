@@ -41,6 +41,8 @@ Options:
   -h, --help     output usage information
   -V, --version  output the version number
   -d, --dev      Install the package as a devDependency
+  -S, --silent   If using npm, don't save in package.json
+  -Y, --yarn     Install with yarn
 ```
 
 ## Examples
