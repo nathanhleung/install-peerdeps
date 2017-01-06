@@ -15,6 +15,8 @@ function getPackageData(encodedPackageName) {
       if (res.statusCode === 404) {
         return reject(new Error('That package doesn\'t exist. Please try another.'));
       }
+      // If it's not 200 or 404, something must
+      // have gone wrong with the connection
       if (res.statusCode !== 200) {
         return reject(new Error('There was a problem connecting to the registry.'));
       }
@@ -33,10 +35,13 @@ function getPackageData(encodedPackageName) {
       });
     });
     req.on('error', err => reject(err));
+    // req.end() must be called with http.request
     req.end();
   });
 }
 
+// Function to spawn the install process,
+// returns a Promise
 function spawnInstall(command, args) {
   return new Promise((resolve, reject) => {
     // Spawn install process
@@ -61,6 +66,7 @@ function installPeerDeps({ packageName, version, packageManager, dev, silent }, 
   // for scoped modules help
   let encodedPackageName;
   if (packageName[0] === '@') {
+    // For the registry URL, the @ doesn't get URL encoded for some reason
     encodedPackageName = `@${encodeURIComponent(packageName.substring(1))}`;
   } else {
     encodedPackageName = encodeURIComponent(packageName);

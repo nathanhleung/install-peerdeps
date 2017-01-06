@@ -94,6 +94,14 @@ if (program.yarn && program.silent) {
   process.exit(1);
 }
 
+// Dev option can't be used with silent,
+// since --dev means it should be saved
+// as a devDependency
+if (program.dev && program.silent) {
+  console.log(`${errorText} Option --silent cannot be used with --dev.`);
+  process.exit(1);
+}
+
 // Define options object to pass to
 // the actual install function
 const options = {
