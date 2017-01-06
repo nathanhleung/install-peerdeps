@@ -9,7 +9,7 @@
   },
   "preferGlobal": true,
   "bin": {
-    "install-peerdeps": "cli.js"
+    "install-peerdeps": "lib/cli.js"
   },
   "repository": {
     "url": "https://github.com/nathanhleung/install-peerdeps",
