@@ -81,5 +81,8 @@ yarn add v0.18.1
 ...
 ```
 
+## Development
+* The package is written in ES6 using the `latest` Babel preset.
+
 ## License
 [MIT](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)
