@@ -101,8 +101,9 @@ function installPeerDeps({ packageName, version, packageManager, dev, silent }, 
         let range = peerDepsVersionMap[depName];
         // Semver ranges can have a join of comparator sets
         // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-        // We just take the first comparator of the set
-        let comparator = range.split(' ')[0];
+        // We just take the last comparator in the set
+        let rangeSplit = range.split(' ');
+        let comparator = rangeSplit[rangeSplit.length-1];
         packagesString += ` ${depName}@${comparator}`;
       });
       // Construct command based on package manager of current project
