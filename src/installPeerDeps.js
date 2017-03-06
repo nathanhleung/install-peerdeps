@@ -98,7 +98,12 @@ function installPeerDeps({ packageName, version, packageManager, dev, silent }, 
       // Construct packages string with correct versions for install
       let packagesString = `${packageName}`;
       Object.keys(peerDepsVersionMap).forEach((depName) => {
-        packagesString += ` ${depName}@${peerDepsVersionMap[depName]}`;
+        let range = peerDepsVersionMap[depName];
+        // Semver ranges can have a join of comparator sets
+        // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
+        // We just take the first comparator of the set
+        let comparator = range.split(' ')[0];
+        packagesString += ` ${depName}@${comparator}`;
       });
       // Construct command based on package manager of current project
       const subcommand = packageManager === C.yarn ? 'add' : 'install';
