@@ -5,6 +5,7 @@
   "main": "lib/cli.js",
   "scripts": {
     "test": "jest",
+    "lint": "eslint src/",
     "babel": "babel src --out-dir lib --ignore **/*.test.js",
     "prepublish": "npm run babel",
     "version": "npm run babel"
