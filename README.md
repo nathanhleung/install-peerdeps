@@ -1,4 +1,9 @@
 # install-peerdeps [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps)
+
+> As seen on the README of [Airbnb's ESLint config](https://www.npmjs.com/package/eslint-config-airbnb)!
+
+> _Disclaimer: Airbnb is not affiliated with, and does not endorse, this CLI tool_
+
 A command-line interface to install an NPM package and its peer dependencies automatically.
 
 NPM v3 doesn't install peerDeps automatically anymore, and it can be a hassle to install them all — now you can, with `install-peerdeps`. Also works with Yarn.
