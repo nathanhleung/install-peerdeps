@@ -96,6 +96,7 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
       }
 
       // Construct packages string with correct versions for install
+      // If onlyPeers option is true, don't install the package itself, only its peers.
       let packagesString = onlyPeers ? '' : `${packageName}`;
       Object.keys(peerDepsVersionMap).forEach((depName) => {
         const range = peerDepsVersionMap[depName];
