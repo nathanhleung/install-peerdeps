@@ -32,7 +32,7 @@ program
   .version(version)
   .description('Installs the specified package along with correct peerDeps.')
   .option('-d, --dev', 'Install the package as a devDependency')
-  .option('-o, --onlyPeers', 'Install only peerDpenendncies of the package')
+  .option('-o, --only-peers', 'Install only peerDependencies of the package')
   .option('-S, --silent', 'If using npm, don\'t save in package.json')
   .option('-Y, --yarn', 'Install with yarn')
   .usage('<package>[@<version>], default version is \'latest\'')
@@ -109,7 +109,7 @@ const options = {
   packageName,
   version: packageVersion || 'latest',
   dev: program.dev,
-  onlyPeers: program['only-peers'],
+  onlyPeers: program.onlyPeers,
   silent: program.silent,
   packageManager,
 };
