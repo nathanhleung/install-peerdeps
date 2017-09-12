@@ -61,7 +61,7 @@ function spawnInstall(command, args) {
   });
 }
 
-function installPeerDeps({ packageName, version, packageManager, dev, silent }, cb) {
+function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers, silent }, cb) {
   // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
   // for scoped modules help
   let encodedPackageName;
@@ -96,7 +96,7 @@ function installPeerDeps({ packageName, version, packageManager, dev, silent }, 
       }
 
       // Construct packages string with correct versions for install
-      let packagesString = `${packageName}`;
+      let packagesString = onlyPeers ? '' : `${packageName}`;
       Object.keys(peerDepsVersionMap).forEach((depName) => {
         const range = peerDepsVersionMap[depName];
         // Semver ranges can have a join of comparator sets
