@@ -154,7 +154,7 @@ function installCb(err) {
   if (program.onlyPeers) {
     successMessage = `${successText} The peerDeps of ${packageName} were installed successfully.`;
   }
-  console.log();
+  console.log(successMessage);
   process.exit(0);
 }
 /* eslint-enable */
