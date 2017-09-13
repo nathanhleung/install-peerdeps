@@ -149,7 +149,12 @@ function installCb(err) {
     console.log(`${errorText} ${err.message}`);
     process.exit(1);
   }
-  console.log(`${successText} ${packageName} and its peerDeps were installed successfully.`);
+  let successMessage =
+    `${successText} ${packageName} and its peerDeps were installed successfully.`;
+  if (program.onlyPeers) {
+    successMessage = `${successText} The peerDeps of ${packageName} were installed successfully.`;
+  }
+  console.log();
   process.exit(0);
 }
 /* eslint-enable */

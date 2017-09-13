@@ -141,6 +141,12 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
         args = args.concat('--save');
       }
 
+      // Remove empty args
+      // There's a bug with Yarn 1.0 in which an empty arg
+      // causes the install process to fail with a "malformed
+      // response from the registry" error
+      args = args.filter(a => a !== '');
+
       //  Show user the command that's running
       console.log(`Installing peerdeps for ${packageName}@${version}.`);
       console.log(`${packageManager} ${args.join(' ')}\n`);
