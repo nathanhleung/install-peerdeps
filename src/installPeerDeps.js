@@ -139,6 +139,8 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
       // deps in package.json under "dependencies"
       if (devFlag === '' && packageManager === C.npm && !silent) {
         args = args.concat('--save');
+      } else {
+        args = args.concat('--no-save');
       }
 
       // Remove empty args
