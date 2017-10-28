@@ -139,7 +139,12 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
       // deps in package.json under "dependencies"
       if (devFlag === '' && packageManager === C.npm && !silent) {
         args = args.concat('--save');
-      } else {
+      }
+      // If we are using NPM, and there's no dev flag,
+      // and it IS a silent install,
+      // explicitly pass the --no-save flag
+      // (NPM v5+ defaults to using --save)
+      if (devFlag === '' && packageManager === C.npm && silent) {
         args = args.concat('--no-save');
       }
 
