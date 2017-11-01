@@ -61,7 +61,7 @@ function spawnInstall(command, args) {
   });
 }
 
-function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers, silent }, cb) {
+function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers, silent, dryRun }, cb) {
   // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
   // for scoped modules help
   let encodedPackageName;
@@ -155,11 +155,17 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
       args = args.filter(a => a !== '');
 
       //  Show user the command that's running
-      console.log(`Installing peerdeps for ${packageName}@${version}.`);
-      console.log(`${packageManager} ${args.join(' ')}\n`);
-      spawnInstall(packageManager + extra, args)
-        .then(() => cb(null))
-        .catch(err => cb(err));
+      const commandString = `${packageManager} ${args.join(' ')}\n`;
+      if (dryRun) {
+        console.log(`This command would have been run to install ${packageName}@${version}:`);
+        console.log(commandString);
+      } else {
+        console.log(`Installing peerdeps for ${packageName}@${version}.`);
+        console.log(commandString);
+        spawnInstall(packageManager + extra, args)
+          .then(() => cb(null))
+          .catch(err => cb(err));
+      }
     });
 }
 

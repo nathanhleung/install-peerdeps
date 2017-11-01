@@ -34,7 +34,8 @@ program
   .option('-d, --dev', 'Install the package as a devDependency')
   .option('-o, --only-peers', 'Install only peerDependencies of the package')
   .option('-S, --silent', 'If using npm, don\'t save in package.json')
-  .option('-Y, --yarn', 'Install with yarn')
+  .option('-Y, --yarn', 'Install with Yarn')
+  .option('--dry-run', 'Do not install packages, but show the install command that will be run')
   .usage('<package>[@<version>], default version is \'latest\'')
   .parse(process.argv);
 
@@ -112,6 +113,7 @@ const options = {
   onlyPeers: program.onlyPeers,
   silent: program.silent,
   packageManager,
+  dryRun: program.dryRun,
 };
 
 // Disabled this rule so we can hoist the callback
