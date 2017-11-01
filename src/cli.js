@@ -160,3 +160,5 @@ function installCb(err) {
   process.exit(0);
 }
 /* eslint-enable */
+
+export default program;
