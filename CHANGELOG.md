@@ -1,7 +1,7 @@
 # 1.3.0
 * Merged pull request #15 from @brucewpaul - Add the explicit `--no-save` option when using NPM (NPM v5 defaults to `--save`)
-* Update README with build badges, add CONTRIBUTING.md and ROADMAP.md
-* Increase test coverage - added tests for #15 and #10
+* Updated README with build badges, add CONTRIBUTING.md and ROADMAP.md
+* Increased test coverage - added tests for #15 and #10
 * Added `--dry-run` option for testing
 
 # 1.2.0
