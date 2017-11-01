@@ -6,7 +6,9 @@
 
 A command-line interface to install an NPM package and its peer dependencies automatically.
 
-NPM v3 doesn't install peerDeps automatically anymore, and it can be a hassle to install them all — now you can, with `install-peerdeps`. Also works with Yarn.
+Starting with NPM v3.0, peer dependencies are not  automatically installed on `npm install`, and it can be a hassle to install them all manually. The `install-peerdeps` tool makes the process fast and easy.
+
+Also works with Yarn.
 
 ## Quick Start
 ```
@@ -89,18 +91,7 @@ yarn add v0.18.1
 ```
 
 ## Contributing
-Issues and pull requests are welcome.
-
-This package is written in ES6 using the `latest` Babel preset and the Airbnb ESlint config.
-
-Please lint and test your code before submitting!
-
-```
-npm run lint
-npm test
-```
-
-Thanks!
+See [CONTRIBUTING.md](https://github.com/nathanhleung/install-peerdeps/blob/master/CONTRIBUTING.md)
 
 ## License
 [MIT](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)
