@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "babel": "babel src --out-dir lib --ignore **/*.test.js",
-    "prepublish": "npm run babel"
+    "build": "babel src --out-dir lib --ignore **/*.test.js",
+    "prepare": "npm run build"
   },
   "preferGlobal": true,
   "bin": {
