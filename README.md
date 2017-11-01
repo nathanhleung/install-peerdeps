@@ -1,8 +1,13 @@
-# install-peerdeps [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps)
+# install-peerdeps
 
 > As seen on the README of [Airbnb's ESLint config](https://www.npmjs.com/package/eslint-config-airbnb)!
 
 > _Disclaimer: Airbnb is not affiliated with, and does not endorse, this CLI tool_
+
+[![Build Status](https://travis-ci.org/nathanhleung/install-peerdeps.png?branch=master)](https://travis-ci.org/nathanhleung/install-peerdeps) [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps) [![devDependency Status](https://david-dm.org/nathanhleung/install-peerdeps/dev-status.svg)](https://david-dm.org/nathanhleung/install-peerdeps?type=dev)
+
+[![https://nodei.co/npm/install-peerdeps.png?downloads=true&downloadRank=true&stars=true](https://nodei.co/npm/install-peerdeps.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/install-peerdeps)
+
 
 A command-line interface to install an NPM package and its peer dependencies automatically.
 
