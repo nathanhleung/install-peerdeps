@@ -50,19 +50,20 @@ Installs the specified package along with correct peerDeps.
 
 Options:
 
-  -h, --help        output usage information
-  -V, --version     output the version number
-  -d, --dev         Install the package as a devDependency
-  -o, --only-peers  Install only peerDependencies of the package
-  -S, --silent      If using npm, don't save in package.json
-  -Y, --yarn        Install with Yarn
-  --dry-run         Do not install packages, but show the install command that will be run
+  -V, --version         output the version number
+  -d, --dev             Install the package as a devDependency
+  -o, --only-peers      Install only peerDependencies of the package
+  -S, --silent          If using npm, don't save in package.json
+  -Y, --yarn            Install with Yarn
+  -r, --registry <uri>  Install from custom registry (defaults to NPM registry)
+  --dry-run             Do not install packages, but show the install command that will be run
+  -h, --help            output usage information
 
 ```
 
 ## Examples
-### `eslint-config-airbnb`
-This package requires quite a few peer dependencies. Here's what you'd do to install them all:
+### Basic Peer Dependency Installation
+`eslint-config-airbnb` requires quite a few peer dependencies. Here's what you'd do to install them all:
 
 `install-peerdeps eslint-config-airbnb --dev`
 
@@ -78,14 +79,12 @@ yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint
 -react@^6.6.0 --dev
 ```
 
-### `@angular/core`
-Angular also requires a few peer dependencies.
+### Installing a Different Version Tag
+If you'd like to install a different version of a package than the latest (the default), simply specify the version like so:
 
-`install-peerdeps @angular/core` should do the trick.
+`install-peerdeps @angular/core@next`
 
-What if you want to try a beta version? Run `install-peerdeps @angular/core@next`.
-
-This tool will automatically install the version corresponding to the tag, as well as its peer dependencies:
+The tool will automatically install the version corresponding to the tag, as well as its peer dependencies:
 
 ```
 ...
@@ -95,6 +94,22 @@ yarn add @angular/core rxjs@^5.0.1 zone.js@^0.7.2
 yarn add v0.18.1
 ...
 ```
+
+### Installing from a Custom Registry
+To install from a custom registry, use the `--registry` option:
+
+`install-peerdeps my-custom-package --registry https://registry.mycompany.com`.
+
+If you're having problems, make sure that you don't have a trailing slash at the end of the registry URI (e.g. make sure you have `https://registry.mycompany.com` and NOT `https://registry.mycompany.com/`).
+
+### Proxies
+To use this tool with a proxy, set the `HTTPS_PROXY` environment variable (if you're using a custom registry and it is only accessible over HTTP, though, set the `HTTP_PROXY` environment variable).
+
+Under the hood, this package uses the `request` module to get package information from the registry and it spawns an NPM or Yarn child process for the actual installation.
+
+`request` respects the `HTTP_PROXY` and `HTTPS_PROXY` environment variables, and `spawn` passes environment variables to the child process, so if you have the `PROXY` environment variables correctly set, everything should work. Nonetheless, proxy support is a new addition to this tool (added in v1.4.0), so please leave an issue if you have any problems.
+
+`HTTPS_PROXY=https://proxy.mycompany.com/ install-peerdeps my-company-package`
 
 ## Contributing
 See [CONTRIBUTING.md](https://github.com/nathanhleung/install-peerdeps/blob/master/CONTRIBUTING.md)
