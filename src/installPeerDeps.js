@@ -20,11 +20,15 @@ function encodePackageName(packageName) {
 function getPackageData({ encodedPackageName, registry }) {
   return request({
     uri: `${registry}/${encodedPackageName}`,
-    resolveWithFullResponse: true
+    resolveWithFullResponse: true,
+    // When simple is true, all non-200 status codes throw an
+    // error. However, we want to handle status code errors in
+    // the .then(), so we make simple false.
+    simple: false
   }).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
-      throw new Error("That package doesn't exist. Please try another.");
+      throw new Error("That package doesn't exist. Did you mean to specify a custom registry?");
     }
     // If the statusCode not 200 or 404, assume that something must
     // have gone wrong with the connection
@@ -104,7 +108,7 @@ function installPeerDeps(
 
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself, only its peers.
-      let packagesString = onlyPeers ? "" : `${packageName}`;
+      let packagesString = onlyPeers ? "" : `${packageName}@${version}`;
       Object.keys(peerDepsVersionMap).forEach(depName => {
         const range = peerDepsVersionMap[depName];
         // Semver ranges can have a join of comparator sets

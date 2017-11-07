@@ -82,11 +82,13 @@ if (program.args.length === 0) {
 // The first argument after the options is the name of the package
 const packageString = program.args[0];
 
-// Capturing groups are the package name,
-// package version with @,
-// and bare package version
+// Capturing groups are the package name, package version with @,
+// and bare package version.
+// The version number (part after @) can contain digits, letters,
+// dots, or dashes (e.g. bootstrap@4.0.0-beta contains all of those
+// characters)
 // eslint-disable-next-line no-useless-escape
-const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\.\w]+))?$/);
+const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\w\.-]+))?$/);
 
 // Get actual package name, account for @ sign
 // (like @angular/core)
