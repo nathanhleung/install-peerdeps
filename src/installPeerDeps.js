@@ -1,42 +1,39 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
 
-import { request } from 'http';
+import request from 'request-promise-native';
 import { spawn } from 'child_process';
 import * as C from './constants';
 
-function getPackageData(encodedPackageName) {
-  return new Promise((resolve, reject) => {
-    // JSON data about a package is available at https://registry.npmjs.com/<package-name>
-    const req = request({
-      protocol: 'http:',
-      hostname: 'registry.npmjs.com',
-      path: `/${encodedPackageName}`,
-    }, (res) => {
-      if (res.statusCode === 404) {
-        return reject(new Error('That package doesn\'t exist. Please try another.'));
-      }
-      // If it's not 200 or 404, something must
-      // have gone wrong with the connection
-      if (res.statusCode !== 200) {
-        return reject(new Error('There was a problem connecting to the registry.'));
-      }
-      res.setEncoding('utf8');
-      let rawData = '';
-      res.on('data', (chunk) => {
-        rawData += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const parsedData = JSON.parse(rawData);
-          return resolve(parsedData);
-        } catch (err) {
-          return reject(err);
-        }
-      });
-    });
-    req.on('error', err => reject(err));
-    // req.end() must be called with http.request
-    req.end();
+function encodePackageName(packageName) {
+  // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
+  // for scoped modules help
+  let encodedPackageName;
+  if (packageName[0] === '@') {
+    // For the registry URL, the @ doesn't get URL encoded for some reason
+    encodedPackageName = `@${encodeURIComponent(packageName.substring(1))}`;
+  } else {
+    encodedPackageName = encodeURIComponent(packageName);
+  }
+  return encodedPackageName;
+}
+
+function getPackageData({ encodedPackageName, registry }) {
+  return request({
+    uri: `${registry}/${encodedPackageName}`,
+    resolveWithFullResponse: true,
+  }).then((response) => {
+    const { statusCode } = response;
+    if (statusCode === 404) {
+      throw new Error('That package doesn\'t exist. Please try another.');
+    }
+    // If the statusCode not 200 or 404, assume that something must
+    // have gone wrong with the connection
+    if (statusCode !== 200) {
+      throw new Error('There was a problem connecting to the registry.');
+    }
+    const { body } = response;
+    const parsedData = JSON.parse(body);
+    return parsedData;
   });
 }
 
@@ -61,18 +58,9 @@ function spawnInstall(command, args) {
   });
 }
 
-function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers, silent, dryRun }, cb) {
-  // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
-  // for scoped modules help
-  let encodedPackageName;
-  if (packageName[0] === '@') {
-    // For the registry URL, the @ doesn't get URL encoded for some reason
-    encodedPackageName = `@${encodeURIComponent(packageName.substring(1))}`;
-  } else {
-    encodedPackageName = encodeURIComponent(packageName);
-  }
-
-  getPackageData(encodedPackageName)
+function installPeerDeps({ packageName, version, packageManager, registry, dev, onlyPeers, silent, dryRun }, cb) {
+  const encodedPackageName = encodePackageName(packageName);
+  getPackageData({ encodedPackageName, registry })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then((data) => {
@@ -168,5 +156,11 @@ function installPeerDeps({ packageName, version, packageManager, dev, onlyPeers,
       }
     });
 }
+
+// Export for testing
+export {
+  encodePackageName,
+  getPackageData,
+};
 
 export default installPeerDeps;

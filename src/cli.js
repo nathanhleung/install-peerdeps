@@ -35,6 +35,7 @@ program
   .option('-o, --only-peers', 'Install only peerDependencies of the package')
   .option('-S, --silent', 'If using npm, don\'t save in package.json')
   .option('-Y, --yarn', 'Install with Yarn')
+  .option('-r, --registry <uri>', 'Install from custom registry (defaults to NPM registry)')
   .option('--dry-run', 'Do not install packages, but show the install command that will be run')
   .usage('<package>[@<version>], default version is \'latest\'')
   .parse(process.argv);
@@ -109,6 +110,7 @@ if (program.dev && program.silent) {
 const options = {
   packageName,
   version: packageVersion || 'latest',
+  registry: program.registry || 'https://registry.npmjs.com',
   dev: program.dev,
   onlyPeers: program.onlyPeers,
   silent: program.silent,

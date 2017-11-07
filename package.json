@@ -32,22 +32,22 @@
   "author": "nathanhleung",
   "license": "MIT",
   "dependencies": {
-    "cli-color": "^1.1.0",
-    "commander": "^2.9.0",
+    "cli-color": "^1.2.0",
+    "commander": "^2.11.0",
     "has-yarn": "^1.0.0",
-    "promptly": "^2.1.0"
+    "jest": "^21.2.1",
+    "promptly": "^2.1.0",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
-    "babel-jest": "^19.0.0",
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.23.0",
     "eslint": "^3.9.1",
-    "eslint-config-airbnb": "^13.0.0",
     "eslint-plugin-import": "^2.1.0",
     "eslint-plugin-jest": "^19.0.1",
     "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.6.0",
-    "jest": "^19.0.2"
+    "eslint-plugin-react": "^6.6.0"
   }
 }
