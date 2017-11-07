@@ -3,9 +3,9 @@ Issues and pull requests are welcome.
 
 This package is written in ES6 using the `latest` Babel preset and the Airbnb ESlint config.
 
-Please lint and test your code before submitting!
+Please lint and test your code before submitting.
 
-```
-npm run lint
-npm test
+```sh
+yarn lint # Will automatically format your code with prettier
+yarn test
 ```

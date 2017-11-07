@@ -1,12 +1,18 @@
 {
-  "extends": ["airbnb", "plugin:jest/recommended"],
-  "rules": {
-    "no-console": 0
-  },
+  "extends": [
+    "airbnb",
+    "plugin:jest/recommended",
+    "prettier"
+  ],
   "plugins": [
-    "jest"
+    "jest",
+    "prettier"
   ],
   "env": {
     "jest/globals": true
+  },
+  "rules": {
+    "no-console": 0,
+    "prettier/prettier": "error"
   }
 }
