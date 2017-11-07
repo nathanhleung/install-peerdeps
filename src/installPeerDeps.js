@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
 
-import request from 'request-promise-native';
-import { spawn } from 'child_process';
-import * as C from './constants';
+import request from "request-promise-native";
+import { spawn } from "child_process";
+import * as C from "./constants";
 
 function encodePackageName(packageName) {
   // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
   // for scoped modules help
   let encodedPackageName;
-  if (packageName[0] === '@') {
+  if (packageName[0] === "@") {
     // For the registry URL, the @ doesn't get URL encoded for some reason
     encodedPackageName = `@${encodeURIComponent(packageName.substring(1))}`;
   } else {
@@ -20,16 +20,16 @@ function encodePackageName(packageName) {
 function getPackageData({ encodedPackageName, registry }) {
   return request({
     uri: `${registry}/${encodedPackageName}`,
-    resolveWithFullResponse: true,
-  }).then((response) => {
+    resolveWithFullResponse: true
+  }).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
-      throw new Error('That package doesn\'t exist. Please try another.');
+      throw new Error("That package doesn't exist. Please try another.");
     }
     // If the statusCode not 200 or 404, assume that something must
     // have gone wrong with the connection
     if (statusCode !== 200) {
-      throw new Error('There was a problem connecting to the registry.');
+      throw new Error("There was a problem connecting to the registry.");
     }
     const { body } = response;
     const parsedData = JSON.parse(body);
@@ -46,67 +46,86 @@ function spawnInstall(command, args) {
       cwd: process.cwd(),
       // Something to do with this, progress bar only shows if stdio is inherit
       // https://github.com/yarnpkg/yarn/issues/2200
-      stdio: 'inherit',
+      stdio: "inherit"
     });
-    installProcess.on('error', err => reject(err));
-    installProcess.on('close', (code) => {
+    installProcess.on("error", err => reject(err));
+    installProcess.on("close", code => {
       if (code !== 0) {
-        return reject(new Error(`The install process exited with error code ${code}.`));
+        return reject(
+          new Error(`The install process exited with error code ${code}.`)
+        );
       }
       return resolve();
     });
   });
 }
 
-function installPeerDeps({ packageName, version, packageManager, registry, dev, onlyPeers, silent, dryRun }, cb) {
+function installPeerDeps(
+  {
+    packageName,
+    version,
+    packageManager,
+    registry,
+    dev,
+    onlyPeers,
+    silent,
+    dryRun
+  },
+  cb
+) {
   const encodedPackageName = encodePackageName(packageName);
   getPackageData({ encodedPackageName, registry })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
-    .then((data) => {
+    .then(data => {
       const versions = Object.keys(data.versions);
       // If it's not a valid version, maybe it's a tag
       if (versions.indexOf(version) === -1) {
-        const tags = Object.keys(data['dist-tags']);
+        const tags = Object.keys(data["dist-tags"]);
         //  If it's not a valid tag, throw an error
         if (tags.indexOf(version) === -1) {
-          return cb(new Error('That version or tag does not exist.'));
+          return cb(new Error("That version or tag does not exist."));
         }
         // If the tag is valid, then find the version corresponding to the tag
-        version = data['dist-tags'][version];
+        // eslint-disable-next-line prefer-destructuring
+        version = data["dist-tags"][version];
       }
 
       // Get peer dependencies for current version
       const peerDepsVersionMap = data.versions[version].peerDependencies;
 
-      if (typeof peerDepsVersionMap === 'undefined') {
-        cb(new Error('The package you are trying to install has no peer dependencies. Use yarn or npm to install it manually.'));
+      if (typeof peerDepsVersionMap === "undefined") {
+        cb(
+          new Error(
+            "The package you are trying to install has no peer dependencies. Use yarn or npm to install it manually."
+          )
+        );
       }
 
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself, only its peers.
-      let packagesString = onlyPeers ? '' : `${packageName}`;
-      Object.keys(peerDepsVersionMap).forEach((depName) => {
+      let packagesString = onlyPeers ? "" : `${packageName}`;
+      Object.keys(peerDepsVersionMap).forEach(depName => {
         const range = peerDepsVersionMap[depName];
         // Semver ranges can have a join of comparator sets
         // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
         // We just take the last comparator in the set
-        const rangeSplit = range.split(' ');
+        const rangeSplit = range.split(" ");
         const lastComparator = rangeSplit[rangeSplit.length - 1];
         packagesString += ` ${depName}@${lastComparator}`;
       });
       // Construct command based on package manager of current project
-      const subcommand = packageManager === C.yarn ? 'add' : 'install';
-      let devFlag = packageManager === C.yarn ? '--dev' : '--save-dev';
+      const subcommand = packageManager === C.yarn ? "add" : "install";
+      let devFlag = packageManager === C.yarn ? "--dev" : "--save-dev";
       if (!dev) {
-        devFlag = '';
+        devFlag = "";
       }
-      const isWindows = (process.platform === 'win32');
-      let extra = '';
+      const isWindows = process.platform === "win32";
+      let extra = "";
       if (isWindows) {
         // Spawn doesn't work without this extra stuff in Windows
         // See https://github.com/nodejs/node/issues/3675
-        extra = '.cmd';
+        extra = ".cmd";
       }
 
       let args = [];
@@ -116,36 +135,40 @@ function installPeerDeps({ packageName, version, packageManager, registry, dev, 
       // If we have spaces in our args spawn()
       // cries foul so we'll split the packagesString
       // into an array of individual packages
-      args = args.concat(packagesString.split(' '));
+      args = args.concat(packagesString.split(" "));
       // If devFlag is empty, then we'd be adding an empty arg
       // That causes the command to fail
-      if (devFlag !== '') {
+      if (devFlag !== "") {
         args = args.concat(devFlag);
       }
       // If we're using NPM, and there's no dev flag,
       // and it's not a silent install make sure to save
       // deps in package.json under "dependencies"
-      if (devFlag === '' && packageManager === C.npm && !silent) {
-        args = args.concat('--save');
+      if (devFlag === "" && packageManager === C.npm && !silent) {
+        args = args.concat("--save");
       }
       // If we are using NPM, and there's no dev flag,
       // and it IS a silent install,
       // explicitly pass the --no-save flag
       // (NPM v5+ defaults to using --save)
-      if (devFlag === '' && packageManager === C.npm && silent) {
-        args = args.concat('--no-save');
+      if (devFlag === "" && packageManager === C.npm && silent) {
+        args = args.concat("--no-save");
       }
 
       // Remove empty args
       // There's a bug with Yarn 1.0 in which an empty arg
       // causes the install process to fail with a "malformed
       // response from the registry" error
-      args = args.filter(a => a !== '');
+      args = args.filter(a => a !== "");
 
       //  Show user the command that's running
-      const commandString = `${packageManager} ${args.join(' ')}\n`;
+      const commandString = `${packageManager} ${args.join(" ")}\n`;
       if (dryRun) {
-        console.log(`This command would have been run to install ${packageName}@${version}:`);
+        console.log(
+          `This command would have been run to install ${packageName}@${
+            version
+          }:`
+        );
         console.log(commandString);
       } else {
         console.log(`Installing peerdeps for ${packageName}@${version}.`);
@@ -158,9 +181,6 @@ function installPeerDeps({ packageName, version, packageManager, registry, dev, 
 }
 
 // Export for testing
-export {
-  encodePackageName,
-  getPackageData,
-};
+export { encodePackageName, getPackageData };
 
 export default installPeerDeps;

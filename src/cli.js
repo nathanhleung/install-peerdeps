@@ -1,43 +1,60 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
-import { confirm } from 'promptly';
-import hasYarn from 'has-yarn';
-import clc from 'cli-color';
-import pkg from '../package.json';
-import installPeerDeps from './installPeerDeps';
-import * as C from './constants';
+import { Command } from "commander";
+import { confirm } from "promptly";
+import hasYarn from "has-yarn";
+import clc from "cli-color";
+import pkg from "../package.json";
+import installPeerDeps from "./installPeerDeps";
+import * as C from "./constants";
 
 // Create program object
-const program = new Command('install-peerdeps');
+const program = new Command("install-peerdeps");
 
 // Create prefixes for error/sucess events
-const errorText = clc.red.bold('ERR');
-const successText = clc.green.bold('SUCCESS');
+const errorText = clc.red.bold("ERR");
+const successText = clc.green.bold("SUCCESS");
 
 // Get relevant package information
-const name = pkg.name;
-const version = pkg.version;
+const { name, version } = pkg;
 
 // This is used a couple of times, so just putting
 // it into a function so I don't have to copy it like
 // 3 times
 function printPackageFormatError() {
-  console.log(`${errorText} Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``);
-  console.log(`${errorText} At this time you must provide the full semver version of the package.`);
-  console.log(`${errorText} Alternatively, omit it to automatically install the latest version of the package.`);
+  console.log(
+    `${
+      errorText
+    } Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``
+  );
+  console.log(
+    `${
+      errorText
+    } At this time you must provide the full semver version of the package.`
+  );
+  console.log(
+    `${
+      errorText
+    } Alternatively, omit it to automatically install the latest version of the package.`
+  );
 }
 
 // Create program
 program
   .version(version)
-  .description('Installs the specified package along with correct peerDeps.')
-  .option('-d, --dev', 'Install the package as a devDependency')
-  .option('-o, --only-peers', 'Install only peerDependencies of the package')
-  .option('-S, --silent', 'If using npm, don\'t save in package.json')
-  .option('-Y, --yarn', 'Install with Yarn')
-  .option('-r, --registry <uri>', 'Install from custom registry (defaults to NPM registry)')
-  .option('--dry-run', 'Do not install packages, but show the install command that will be run')
-  .usage('<package>[@<version>], default version is \'latest\'')
+  .description("Installs the specified package along with correct peerDeps.")
+  .option("-d, --dev", "Install the package as a devDependency")
+  .option("-o, --only-peers", "Install only peerDependencies of the package")
+  .option("-S, --silent", "If using npm, don't save in package.json")
+  .option("-Y, --yarn", "Install with Yarn")
+  .option(
+    "-r, --registry <uri>",
+    "Install from custom registry (defaults to NPM registry)"
+  )
+  .option(
+    "--dry-run",
+    "Do not install packages, but show the install command that will be run"
+  )
+  .usage("<package>[@<version>], default version is 'latest'")
   .parse(process.argv);
 
 // Print program name and version (like what Yarn does)
@@ -45,13 +62,19 @@ console.log(clc.bold(`${name} v${version}`));
 
 // Make sure we're only installing no more than one package
 if (program.args.length > 1) {
-  console.log(`${errorText} Please specify only one package at a time to install with peerDeps.`);
+  console.log(
+    `${
+      errorText
+    } Please specify only one package at a time to install with peerDeps.`
+  );
   process.exit(1);
 }
 
 // Make sure we're installing at least one package
 if (program.args.length === 0) {
-  console.log(`${errorText} Please specify a package to install with peerDeps.`);
+  console.log(
+    `${errorText} Please specify a package to install with peerDeps.`
+  );
   program.help();
   process.exit(1);
 }
@@ -68,9 +91,10 @@ const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\.\w]+))?$/);
 // Get actual package name, account for @ sign
 // (like @angular/core)
 let packageName;
-if (packageString[0] === '@') {
+if (packageString[0] === "@") {
   packageName = `@${parsed[1]}`;
 } else {
+  // eslint-disable-next-line prefer-destructuring
   packageName = parsed[1];
 }
 
@@ -109,13 +133,13 @@ if (program.dev && program.silent) {
 // the actual install function
 const options = {
   packageName,
-  version: packageVersion || 'latest',
-  registry: program.registry || 'https://registry.npmjs.com',
+  version: packageVersion || "latest",
+  registry: program.registry || "https://registry.npmjs.com",
   dev: program.dev,
   onlyPeers: program.onlyPeers,
   silent: program.silent,
   packageManager,
-  dryRun: program.dryRun,
+  dryRun: program.dryRun
 };
 
 // Disabled this rule so we can hoist the callback
@@ -126,7 +150,7 @@ const options = {
 if (hasYarn() && packageManager !== C.yarn && !program.silent) {
   // If they do, ask if they want to use Yarn
   confirm(
-    'It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)',
+    "It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)",
     (err, value) => {
       if (err) {
         console.log(`${errorText} ${err.message}`);
@@ -137,10 +161,13 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
         packageManager = C.yarn;
       }
       // Now install, but with the new packageManager
-      installPeerDeps(Object.assign({}, options, {
-        packageManager,
-      }), installCb);
-    },
+      installPeerDeps(
+        Object.assign({}, options, {
+          packageManager
+        }),
+        installCb
+      );
+    }
   );
 } else {
   // If they don't have Yarn or they've already
@@ -153,10 +180,13 @@ function installCb(err) {
     console.log(`${errorText} ${err.message}`);
     process.exit(1);
   }
-  let successMessage =
-    `${successText} ${packageName} and its peerDeps were installed successfully.`;
+  let successMessage = `${successText} ${
+    packageName
+  } and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
-    successMessage = `${successText} The peerDeps of ${packageName} were installed successfully.`;
+    successMessage = `${successText} The peerDeps of ${
+      packageName
+    } were installed successfully.`;
   }
   console.log(successMessage);
   process.exit(0);
