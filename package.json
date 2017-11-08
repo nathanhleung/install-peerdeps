@@ -4,7 +4,7 @@
   "description": "CLI to automatically install peerDeps",
   "main": "lib/cli.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "lint": "eslint src/ --fix",
     "build": "babel src --out-dir lib --ignore **/*.test.js",
     "prepare": "npm run build"

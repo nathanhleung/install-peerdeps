@@ -28,7 +28,9 @@ function getPackageData({ encodedPackageName, registry }) {
   }).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
-      throw new Error("That package doesn't exist. Did you mean to specify a custom registry?");
+      throw new Error(
+        "That package doesn't exist. Did you mean to specify a custom registry?"
+      );
     }
     // If the statusCode not 200 or 404, assume that something must
     // have gone wrong with the connection

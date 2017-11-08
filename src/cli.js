@@ -3,16 +3,14 @@ import { Command } from "commander";
 import { confirm } from "promptly";
 import hasYarn from "has-yarn";
 import clc from "cli-color";
+
 import pkg from "../package.json";
 import installPeerDeps from "./installPeerDeps";
+import { parsePackageString } from "./helpers";
 import * as C from "./constants";
 
 // Create program object
 const program = new Command("install-peerdeps");
-
-// Create prefixes for error/sucess events
-const errorText = clc.red.bold("ERR");
-const successText = clc.green.bold("SUCCESS");
 
 // Get relevant package information
 const { name, version } = pkg;
@@ -23,17 +21,17 @@ const { name, version } = pkg;
 function printPackageFormatError() {
   console.log(
     `${
-      errorText
+      C.errorText
     } Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``
   );
   console.log(
     `${
-      errorText
+      C.errorText
     } At this time you must provide the full semver version of the package.`
   );
   console.log(
     `${
-      errorText
+      C.errorText
     } Alternatively, omit it to automatically install the latest version of the package.`
   );
 }
@@ -64,7 +62,7 @@ console.log(clc.bold(`${name} v${version}`));
 if (program.args.length > 1) {
   console.log(
     `${
-      errorText
+      C.errorText
     } Please specify only one package at a time to install with peerDeps.`
   );
   process.exit(1);
@@ -73,7 +71,7 @@ if (program.args.length > 1) {
 // Make sure we're installing at least one package
 if (program.args.length === 0) {
   console.log(
-    `${errorText} Please specify a package to install with peerDeps.`
+    `${C.errorText} Please specify a package to install with peerDeps.`
   );
   program.help();
   process.exit(1);
@@ -82,27 +80,7 @@ if (program.args.length === 0) {
 // The first argument after the options is the name of the package
 const packageString = program.args[0];
 
-// Capturing groups are the package name, package version with @,
-// and bare package version.
-// The version number (part after @) can contain digits, letters,
-// dots, or dashes (e.g. bootstrap@4.0.0-beta contains all of those
-// characters)
-// eslint-disable-next-line no-useless-escape
-const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\w\.-]+))?$/);
-
-// Get actual package name, account for @ sign
-// (like @angular/core)
-let packageName;
-if (packageString[0] === "@") {
-  packageName = `@${parsed[1]}`;
-} else {
-  // eslint-disable-next-line prefer-destructuring
-  packageName = parsed[1];
-}
-
-// Get package version, 2nd capturing group
-// includes the @ sign so we get the third
-const packageVersion = parsed[3];
+const { packageName, packageVersion } = parsePackageString(packageString);
 
 // If we can't get a package name out,
 // print the format error
@@ -119,7 +97,7 @@ if (program.yarn) {
 }
 
 if (program.yarn && program.silent) {
-  console.log(`${errorText} Option --silent cannot be used with --yarn.`);
+  console.log(`${C.errorText} Option --silent cannot be used with --yarn.`);
   process.exit(1);
 }
 
@@ -127,7 +105,7 @@ if (program.yarn && program.silent) {
 // since --dev means it should be saved
 // as a devDependency
 if (program.dev && program.silent) {
-  console.log(`${errorText} Option --silent cannot be used with --dev.`);
+  console.log(`${C.errorText} Option --silent cannot be used with --dev.`);
   process.exit(1);
 }
 
@@ -155,7 +133,7 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
     "It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)",
     (err, value) => {
       if (err) {
-        console.log(`${errorText} ${err.message}`);
+        console.log(`${C.errorText} ${err.message}`);
         process.exit(1);
       }
       // Value is true or false; if true, they want to use Yarn
@@ -179,14 +157,14 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
 
 function installCb(err) {
   if (err) {
-    console.log(`${errorText} ${err.message}`);
+    console.log(`${C.errorText} ${err.message}`);
     process.exit(1);
   }
-  let successMessage = `${successText} ${
+  let successMessage = `${C.successText} ${
     packageName
   } and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
-    successMessage = `${successText} The peerDeps of ${
+    successMessage = `${C.successText} The peerDeps of ${
       packageName
     } were installed successfully.`;
   }
