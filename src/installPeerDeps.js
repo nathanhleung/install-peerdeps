@@ -4,6 +4,10 @@ import request from "request-promise-native";
 import { spawn } from "child_process";
 import * as C from "./constants";
 
+/**
+ * Encodes the package name for use in a URL/HTTP request
+ * @param {string} packageName - the name of the package to encode
+ */
 function encodePackageName(packageName) {
   // Thanks https://github.com/unpkg/npm-http-server/blob/master/modules/RegistryUtils.js
   // for scoped modules help
@@ -17,6 +21,13 @@ function encodePackageName(packageName) {
   return encodedPackageName;
 }
 
+/**
+ * Gets metadata about the package from the provided registry
+ * @param {Object} requestInfo - information needed to make the request for the data
+ * @param {string} requestInfo.encodedPackageName - the urlencoded name of the package
+ * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
+ * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
+ */
 function getPackageData({ encodedPackageName, registry }) {
   return request({
     uri: `${registry}/${encodedPackageName}`,
@@ -43,8 +54,11 @@ function getPackageData({ encodedPackageName, registry }) {
   });
 }
 
-// Function to spawn the install process,
-// returns a Promise
+/**
+ * Spawns the package manager
+ * @param {string} command - the command to spawn
+ * @returns {Promise} - a Promise which resolves when the install process is finished
+ */
 function spawnInstall(command, args) {
   return new Promise((resolve, reject) => {
     // Spawn install process
@@ -66,6 +80,20 @@ function spawnInstall(command, args) {
   });
 }
 
+/**
+ * Installs the peer dependencies of the provided packages
+ * @param {Object} options - options for the install child_process
+ * @param {string} options.packageName - the name of the package for which to install peer dependencies
+ * @param {string} options.version - the version of the package
+ * @param {string} options.packageManager - the package manager to use (Yarn or npm)
+ * @param {string} options.registry - the URI of the registry to install from
+ * @param {string} options.dev - whether to install the dependencies as devDependencies
+ * @param {boolean} options.onlyPeers - whether to install the package itself or only its peers
+ * @param {boolean} options.silent - whether to save the new dependencies to package.json (NPM only)
+ * @param {boolean} options.dryRun - whether to actually install the packages or just display
+ *                                   the resulting command
+ * @param {Function} cb - the callback to call when the install process is finished
+ */
 function installPeerDeps(
   {
     packageName,

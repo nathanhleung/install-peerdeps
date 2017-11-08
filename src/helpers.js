@@ -1,3 +1,15 @@
+/**
+ * @typdef {Object} PackageInfo
+ * @property {string} packageName - the name of the package
+ * @property {string} packageVersion - the version of the package
+ */
+
+/**
+ * Parses the given package string into a package name and version
+ * @param {string} packageString - a string representing a package name
+ *                                 and version (e.g. package@1.0.0)
+ * @returns {PackageInfo} - an object containing the package name and package version
+ */
 function parsePackageString(packageString) {
   // Capturing groups are the package name, package version with @,
   // and bare package version.

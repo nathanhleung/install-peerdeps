@@ -1,5 +1,10 @@
 import { spawn } from "child_process";
 
+/**
+ * Spawns the CLI with the provided arguments
+ * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @returns {ChildProcess} - an EventEmitter that represents the spawned child process
+ */
 function spawnCli(extraArgs) {
   return spawn(
     "node",
@@ -7,6 +12,12 @@ function spawnCli(extraArgs) {
   );
 }
 
+/**
+ * Gets the resulting install command given the provided arguments
+ * @async
+ * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @returns {Promise<string>} - a Promise which resolves to the resulting install command
+ */
 async function getCliInstallCommand(extraArgs) {
   return new Promise((resolve, reject) => {
     // Always do dry run, so the command is the last line
@@ -21,6 +32,8 @@ async function getCliInstallCommand(extraArgs) {
       // during a dry run
       resolve(lines[lines.length - 1])
     );
+    // Make sure to call reject() on error so that the Promise
+    // doesn't hang forever
     cli.on("error", err => reject(err));
   });
 }

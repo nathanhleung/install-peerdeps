@@ -15,9 +15,10 @@ const program = new Command("install-peerdeps");
 // Get relevant package information
 const { name, version } = pkg;
 
-// This is used a couple of times, so just putting
-// it into a function so I don't have to copy it like
-// 3 times
+/**
+ * Error message that is printed when the program can't
+ * parse the package string.
+ */
 function printPackageFormatError() {
   console.log(
     `${
@@ -96,6 +97,7 @@ if (program.yarn) {
   packageManager = C.yarn;
 }
 
+// Yarn does not allow silent install of dependencies
 if (program.yarn && program.silent) {
   console.log(`${C.errorText} Option --silent cannot be used with --yarn.`);
   process.exit(1);
@@ -110,10 +112,12 @@ if (program.dev && program.silent) {
 }
 
 // Define options object to pass to
-// the actual install function
+// the installPeerDeps function
 const options = {
   packageName,
+  // If packageVersion is undefined, default to "latest"
   version: packageVersion || "latest",
+  // If registry is undefined, default to the official NPM registry
   registry: program.registry || "https://registry.npmjs.com",
   dev: program.dev,
   onlyPeers: program.onlyPeers,
@@ -155,6 +159,12 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
   installPeerDeps(options, installCb);
 }
 
+/**
+ * Callback which is called after the installation
+ * process finishes
+ * @callback
+ * @param {Error} [err] - the error, if any, that occurred during installation
+ */
 function installCb(err) {
   if (err) {
     console.log(`${C.errorText} ${err.message}`);
