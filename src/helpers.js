@@ -17,7 +17,7 @@ function parsePackageString(packageString) {
   // dots, or dashes (e.g. bootstrap@4.0.0-beta contains all of those
   // characters)
   // eslint-disable-next-line no-useless-escape
-  const parsed = packageString.match(/^@?([\/\w-]+)(@([\d\w\.-]+))?$/);
+  const parsed = packageString.match(/^@?([\/\w\.-]+)(@([\d\w\.-]+))?$/);
 
   // Get actual package name, account for @ sign
   // (like @angular/core)
