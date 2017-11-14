@@ -5,7 +5,7 @@ import hasYarn from "has-yarn";
 import clc from "cli-color";
 
 import pkg from "../package.json";
-import installPeerDeps from "./installPeerDeps";
+import installPeerDeps from "./install-peerdeps";
 import { parsePackageString } from "./helpers";
 import * as C from "./constants";
 

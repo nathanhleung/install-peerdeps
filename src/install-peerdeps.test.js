@@ -1,4 +1,4 @@
-import { getPackageData, encodePackageName } from "./installPeerDeps";
+import { getPackageData, encodePackageName } from "./install-peerdeps";
 
 it("gets the package data from the registry correctly", async () => {
   // Only one async operation will run

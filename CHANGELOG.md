@@ -1,3 +1,6 @@
+# 1.4.1
+* Merged #18 - update the argument parsing regular expression to account for periods in the package name
+
 # 1.4.0
 * Added `--registry` option to specify custom/private package registry
 * Fixed #12 - fix version regular expression to allow dashes in the version name (i.e. packages like `bootstrap@4.0.0-beta` are now installable)
