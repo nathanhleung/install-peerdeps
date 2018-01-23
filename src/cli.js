@@ -111,6 +111,15 @@ if (program.dev && program.silent) {
   process.exit(1);
 }
 
+if (program.registry) {
+  const { registry } = program;
+  // Check if last character in registry is a trailing slash
+  if (registry.substr(-1) === "/") {
+    // If the last character is a trailing slash, remove it
+    program.registry = registry.slice(0, -1);
+  }
+}
+
 // Define options object to pass to
 // the installPeerDeps function
 const options = {

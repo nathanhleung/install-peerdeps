@@ -100,8 +100,6 @@ To install from a custom registry, use the `--registry` option:
 
 `install-peerdeps my-custom-package --registry https://registry.mycompany.com`.
 
-If you're having problems, make sure that you don't have a trailing slash at the end of the registry URI (e.g. make sure you have `https://registry.mycompany.com` and NOT `https://registry.mycompany.com/`).
-
 ### Proxies
 To use this tool with a proxy, set the `HTTPS_PROXY` environment variable (if you're using a custom registry and it is only accessible over HTTP, though, set the `HTTP_PROXY` environment variable).
 
