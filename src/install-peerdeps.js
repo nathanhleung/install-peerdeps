@@ -140,13 +140,20 @@ function installPeerDeps(
       // If onlyPeers option is true, don't install the package itself, only its peers.
       let packagesString = onlyPeers ? "" : `${packageName}@${version}`;
       Object.keys(peerDepsVersionMap).forEach(depName => {
-        const range = peerDepsVersionMap[depName];
-        // Semver ranges can have a join of comparator sets
-        // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-        // We just take the last comparator in the set
-        const rangeSplit = range.split(" ");
-        const lastComparator = rangeSplit[rangeSplit.length - 1];
-        packagesString += ` ${depName}@${lastComparator}`;
+        // Get the semver satisfying the peerDep requirement
+        const semver = peerDepsVersionMap[depName];
+
+        // Check if it's a semver range
+        if (semver.indexOf("||") >= 0 || semver.indexOf(" - ") >= 0) {
+          // Semver ranges can have a join of comparator sets
+          // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
+          // We just take the last comparator in the
+          const rangeSplit = semver.split(" ");
+          const lastComparator = rangeSplit[rangeSplit.length - 1];
+          packagesString += ` ${depName}@${lastComparator}`;
+        } else {
+          packagesString += ` ${depName}@${semver}`;
+        }
       });
       // Construct command based on package manager of current project
       const subcommand = packageManager === C.yarn ? "add" : "install";

@@ -1,3 +1,7 @@
+# 1.5.0
+* Fixed #16 - remove trailing slash from registry URI if present
+* Addressed #21 - target older Node (v0.10)
+
 # 1.4.1
 * Merged #18 - update the argument parsing regular expression to account for periods in the package name
 

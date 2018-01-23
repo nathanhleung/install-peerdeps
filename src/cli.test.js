@@ -1,5 +1,8 @@
 import { spawn } from "child_process";
 
+// Set long timeout in case network requests run long
+jest.setTimeout(60000);
+
 /**
  * Spawns the CLI with the provided arguments
  * @param {string[]} extraArgs - arguments to be passed to the CLI
@@ -86,6 +89,13 @@ it("adds an explicit `--no-save` when using `--silent` with NPM", async () => {
     "--silent"
   ]);
   expect(command).not.toEqual(expect.stringMatching(/\b--no-save\b/));
+});
+
+it("installs peerDeps correctly even when they are specified as ranges", async () => {
+  expect.assertions(1);
+  const command = await getCliInstallCommand(["eslint-config-airbnb"]);
+
+  expect(command).toBe("yarn");
 });
 
 // @todo - tests for the actual install process
