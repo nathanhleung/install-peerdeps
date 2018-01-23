@@ -14,7 +14,7 @@
     "install-peerdeps": "lib/cli.js"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=0.10"
   },
   "repository": {
     "url": "https://github.com/nathanhleung/install-peerdeps",
