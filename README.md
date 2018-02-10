@@ -100,6 +100,11 @@ To install from a custom registry, use the `--registry` option:
 
 `install-peerdeps my-custom-package --registry https://registry.mycompany.com`.
 
+### Installing a Private Package
+To install a private npm package (either from npm or from a registry that uses an authorization header), use the auth option:
+
+`install-peerdeps my-private-package --auth your-npm-auth-token`
+
 ### Proxies
 To use this tool with a proxy, set the `HTTPS_PROXY` environment variable (if you're using a custom registry and it is only accessible over HTTP, though, set the `HTTP_PROXY` environment variable).
 
