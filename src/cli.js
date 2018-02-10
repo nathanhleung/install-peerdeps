@@ -53,6 +53,10 @@ program
     "--dry-run",
     "Do not install packages, but show the install command that will be run"
   )
+  .option(
+    "-a, --auth <token>",
+    "Provide auth token or basic auth for private packages."
+  )
   .usage("<package>[@<version>], default version is 'latest'")
   .parse(process.argv);
 
@@ -132,7 +136,8 @@ const options = {
   onlyPeers: program.onlyPeers,
   silent: program.silent,
   packageManager,
-  dryRun: program.dryRun
+  dryRun: program.dryRun,
+  auth: program.auth
 };
 
 // Disabled this rule so we can hoist the callback
@@ -179,13 +184,13 @@ function installCb(err) {
     console.log(`${C.errorText} ${err.message}`);
     process.exit(1);
   }
-  let successMessage = `${C.successText} ${
-    packageName
-  } and its peerDeps were installed successfully.`;
+  let successMessage = `${
+    C.successText
+  } ${packageName} and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
-    successMessage = `${C.successText} The peerDeps of ${
-      packageName
-    } were installed successfully.`;
+    successMessage = `${
+      C.successText
+    } The peerDeps of ${packageName} were installed successfully.`;
   }
   console.log(successMessage);
   process.exit(0);

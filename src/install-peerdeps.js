@@ -28,14 +28,19 @@ function encodePackageName(packageName) {
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
-function getPackageData({ encodedPackageName, registry }) {
+function getPackageData({ encodedPackageName, registry, auth }) {
+  const requestHeaders = {};
+  if (auth) {
+    requestHeaders.Authorization = `Bearer ${auth}`;
+  }
   return request({
     uri: `${registry}/${encodedPackageName}`,
     resolveWithFullResponse: true,
     // When simple is true, all non-200 status codes throw an
     // error. However, we want to handle status code errors in
     // the .then(), so we make simple false.
-    simple: false
+    simple: false,
+    headers: requestHeaders
   }).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
@@ -103,12 +108,13 @@ function installPeerDeps(
     dev,
     onlyPeers,
     silent,
-    dryRun
+    dryRun,
+    auth
   },
   cb
 ) {
   const encodedPackageName = encodePackageName(packageName);
-  getPackageData({ encodedPackageName, registry })
+  getPackageData({ encodedPackageName, registry, auth })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {
@@ -206,9 +212,7 @@ function installPeerDeps(
       const commandString = `${packageManager} ${args.join(" ")}\n`;
       if (dryRun) {
         console.log(
-          `This command would have been run to install ${packageName}@${
-            version
-          }:`
+          `This command would have been run to install ${packageName}@${version}:`
         );
         console.log(commandString);
       } else {
