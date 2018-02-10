@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/ --fix",
-    "build": "babel src --out-dir lib --ignore **/*.test.js",
+    "build": "babel src --out-dir lib --ignore *.test.js",
     "prepare": "npm run build"
   },
   "preferGlobal": true,
