@@ -1,3 +1,6 @@
+# 1.6.0
+* Merged #23 - add option to pass Auth header to install private packages
+
 # 1.5.0
 * Fixed #16 - remove trailing slash from registry URI if present
 * Addressed #21 - target older Node (v0.10)
