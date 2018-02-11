@@ -57,6 +57,7 @@ Options:
   -Y, --yarn            Install with Yarn
   -r, --registry <uri>  Install from custom registry (defaults to NPM registry)
   --dry-run             Do not install packages, but show the install command that will be run
+  -a, --auth <token>    Provide an NPM authToken for private packages.
   -h, --help            output usage information
 
 ```
