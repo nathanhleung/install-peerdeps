@@ -2,6 +2,7 @@
 
 import request from "request-promise-native";
 import { spawn } from "child_process";
+import { maxSatisfying, Range } from "semver";
 import * as C from "./constants";
 
 /**
@@ -119,46 +120,54 @@ function installPeerDeps(
     .catch(err => cb(err))
     .then(data => {
       const versions = Object.keys(data.versions);
-      // If it's not a valid version, maybe it's a tag
-      if (versions.indexOf(version) === -1) {
+      // Get max satisfying semver version
+      let versionToInstall = maxSatisfying(versions, version);
+      // If we didn't find a version, maybe it's a tag
+      if (versionToInstall === null) {
         const tags = Object.keys(data["dist-tags"]);
         //  If it's not a valid tag, throw an error
         if (tags.indexOf(version) === -1) {
           return cb(new Error("That version or tag does not exist."));
         }
         // If the tag is valid, then find the version corresponding to the tag
-        // eslint-disable-next-line prefer-destructuring
-        version = data["dist-tags"][version];
+        versionToInstall = data["dist-tags"][version];
       }
 
-      // Get peer dependencies for current version
-      const peerDepsVersionMap = data.versions[version].peerDependencies;
+      // Get peer dependencies for max satisfying version
+      const peerDepsVersionMap =
+        data.versions[versionToInstall].peerDependencies;
 
       if (typeof peerDepsVersionMap === "undefined") {
         cb(
           new Error(
-            "The package you are trying to install has no peer dependencies. Use yarn or npm to install it manually."
+            "The package you are trying to install has no peer " +
+              "dependencies. Use yarn or npm to install it manually."
           )
         );
       }
 
       // Construct packages string with correct versions for install
-      // If onlyPeers option is true, don't install the package itself, only its peers.
-      let packagesString = onlyPeers ? "" : `${packageName}@${version}`;
+      // If onlyPeers option is true, don't install the package itself,
+      // only its peers.
+      let packagesString = onlyPeers
+        ? ""
+        : `${packageName}@${versionToInstall}`;
       Object.keys(peerDepsVersionMap).forEach(depName => {
-        // Get the semver satisfying the peerDep requirement
-        const semver = peerDepsVersionMap[depName];
-
+        // Get the peer dependency version
+        const peerDepVersion = peerDepsVersionMap[depName];
         // Check if it's a semver range
-        if (semver.indexOf("||") >= 0 || semver.indexOf(" - ") >= 0) {
+        if (
+          peerDepVersion.indexOf("||") >= 0 ||
+          peerDepVersion.indexOf(" - ") >= 0
+        ) {
           // Semver ranges can have a join of comparator sets
           // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
           // We just take the last comparator in the
-          const rangeSplit = semver.split(" ");
+          const rangeSplit = peerDepVersion.split(" ");
           const lastComparator = rangeSplit[rangeSplit.length - 1];
           packagesString += ` ${depName}@${lastComparator}`;
         } else {
-          packagesString += ` ${depName}@${semver}`;
+          packagesString += ` ${depName}@${peerDepVersion}`;
         }
       });
       // Construct command based on package manager of current project
@@ -212,7 +221,9 @@ function installPeerDeps(
       const commandString = `${packageManager} ${args.join(" ")}\n`;
       if (dryRun) {
         console.log(
-          `This command would have been run to install ${packageName}@${version}:`
+          `This command would have been run to install ${packageName}@${
+            version
+          }:`
         );
         console.log(commandString);
       } else {

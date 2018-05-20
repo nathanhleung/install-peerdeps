@@ -30,11 +30,11 @@ async function getCliInstallCommand(extraArgs) {
     cli.stdout.on("data", data => {
       lines.push(data);
     });
-    cli.on("close", () =>
+    cli.on("close", () => {
       // The command will be the last line outputted by the cli
       // during a dry run
-      resolve(lines[lines.length - 1])
-    );
+      resolve(lines[lines.length - 1]);
+    });
     // Make sure to call reject() on error so that the Promise
     // doesn't hang forever
     cli.on("error", err => reject(err));
@@ -89,13 +89,6 @@ it("adds an explicit `--no-save` when using `--silent` with NPM", async () => {
     "--silent"
   ]);
   expect(command).not.toEqual(expect.stringMatching(/\b--no-save\b/));
-});
-
-it("installs peerDeps correctly even when they are specified as ranges", async () => {
-  expect.assertions(1);
-  const command = await getCliInstallCommand(["eslint-config-airbnb"]);
-
-  expect(command).toBe("yarn");
 });
 
 // @todo - tests for the actual install process
