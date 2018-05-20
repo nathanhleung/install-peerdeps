@@ -40,7 +40,8 @@
     "has-yarn": "^1.0.0",
     "promptly": "^2.1.0",
     "request": "^2.83.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.5",
+    "semver": "^5.5.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
