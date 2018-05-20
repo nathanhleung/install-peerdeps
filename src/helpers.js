@@ -14,19 +14,18 @@ function parsePackageString(packageString) {
   // Package scope and package name both can have
   // letters, numbers, dots, hyphens, and underscores.
   // However, they cannot start with dots or underscores
-  const packageScopeMatcher = /@[\w\d-]+[\w\d\._-]*/;
-  const packageNameMatcher = /[\w\d-]+[\w\d\._-]*/;
+  const packageScopeMatcher = /@[\w\d-]+[\w\d._-]*/;
+  const packageNameMatcher = /[\w\d-]+[\w\d._-]*/;
   // The version number may start with a comparator (^, ~, etc) and
   // can contain digits, letters, dots, or dashes (e.g. bootstrap@4.0.0-beta
   // contains all of those characters)
   // Alternatively, it may be a dist tag (e.g. latest, next)
-  const packageVersionMatcher = /([\^~v><=]|(>=|<=))?[\d\w\.-]+/;
+  const packageVersionMatcher = /([\^~v><=]|(>=|<=))?[\d\w.-]+/;
   const packageStringMatcher = new RegExp(
     `((${packageScopeMatcher.source})?/?` +
       `(${packageNameMatcher.source}))(@` +
       `(${packageVersionMatcher.source}))?`
   );
-  // eslint-disable-next-line no-useless-escape
   const parsed = packageString.match(packageStringMatcher);
 
   // According to regexper, name is the first capturing

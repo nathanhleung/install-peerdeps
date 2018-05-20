@@ -2,7 +2,7 @@
 
 import request from "request-promise-native";
 import { spawn } from "child_process";
-import { maxSatisfying, Range } from "semver";
+import { maxSatisfying } from "semver";
 import * as C from "./constants";
 
 /**
