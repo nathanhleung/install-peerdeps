@@ -1,3 +1,7 @@
+# 1.7.0
+* Fixed #25 - allow version number ranges to be installed
+* Fixed #24 - allow extra args to be passed through with `--`
+
 # 1.6.0
 * Merged #23 - add option to pass Auth header to install private packages
 

@@ -62,6 +62,11 @@ Options:
 
 ```
 
+### Extra Arguments
+Only core Yarn and NPM arguments relating to package installation are officially provided by `install-peerdeps`. However, if you'd like to pass through additional arguments, you may do so with `--`. Here's how you'd install a package into a Yarn-workspace-enabled repository:
+
+`install-peerdeps <package> --dev -Y -- -W`
+
 ## Examples
 ### Basic Peer Dependency Installation
 `eslint-config-airbnb` requires quite a few peer dependencies. Here's what you'd do to install them all:
