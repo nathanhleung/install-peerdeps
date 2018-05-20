@@ -63,16 +63,6 @@ program
 // Print program name and version (like what Yarn does)
 console.log(clc.bold(`${name} v${version}`));
 
-// Make sure we're only installing no more than one package
-if (program.args.length > 1) {
-  console.log(
-    `${
-      C.errorText
-    } Please specify only one package at a time to install with peerDeps.`
-  );
-  process.exit(1);
-}
-
 // Make sure we're installing at least one package
 if (program.args.length === 0) {
   console.log(
@@ -137,7 +127,9 @@ const options = {
   silent: program.silent,
   packageManager,
   dryRun: program.dryRun,
-  auth: program.auth
+  auth: program.auth,
+  // Args after -- will be passed through
+  extraArgs: program.args.slice(1)
 };
 
 // Disabled this rule so we can hoist the callback
@@ -184,9 +176,8 @@ function installCb(err) {
     console.log(`${C.errorText} ${err.message}`);
     process.exit(1);
   }
-  let successMessage = `${
-    C.successText
-  } ${packageName} and its peerDeps were installed successfully.`;
+  let successMessage = `${C.successText} ${packageName}
+  and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
     successMessage = `${
       C.successText

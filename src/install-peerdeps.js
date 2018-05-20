@@ -110,7 +110,8 @@ function installPeerDeps(
     onlyPeers,
     silent,
     dryRun,
-    auth
+    auth,
+    extraArgs
   },
   cb
 ) {
@@ -210,6 +211,9 @@ function installPeerDeps(
       if (devFlag === "" && packageManager === C.npm && silent) {
         args = args.concat("--no-save");
       }
+
+      // Pass extra args through (after --)
+      args = args.concat(extraArgs);
 
       // Remove empty args
       // There's a bug with Yarn 1.0 in which an empty arg
