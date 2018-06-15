@@ -1,12 +1,15 @@
+import test from "tape";
 import { getPackageData, encodePackageName } from "./install-peerdeps";
 
-it("gets the package data from the registry correctly", async () => {
+test("gets the package data from the registry correctly", t => {
   // Only one async operation will run
-  expect.assertions(1);
+  t.plan(1);
   const encodedPackageName = encodePackageName("eslint-config-airbnb");
-  const packageData = await getPackageData({
+  getPackageData({
     encodedPackageName,
     registry: "https://registry.npmjs.com"
-  });
-  expect(packageData).toHaveProperty("name", "eslint-config-airbnb");
+  }).then(packageData => {
+    t.equal(packageData.name, "eslint-config-airbnb");
+    t.end();
+  }, t.fail);
 });

@@ -1,7 +1,5 @@
 import { spawn } from "child_process";
-
-// Set long timeout in case network requests run long
-jest.setTimeout(60000);
+import test from "tape";
 
 /**
  * Spawns the CLI with the provided arguments
@@ -41,54 +39,48 @@ async function getCliInstallCommand(extraArgs) {
   });
 }
 
-it("errors when more than one package is provided", done => {
+test("errors when more than one package is provided", t => {
   // Declare # of assertions before every test to ensure assertions
   // are run - this prevents async/callback errors where expect() is
   // never called
-  expect.assertions(1);
+  t.plan(1);
   const cli = spawnCli(["eslint-config-airbnb", "angular"]);
   cli.on("exit", code => {
-    expect(code).toBe(1);
-    done();
+    t.equal(code, 1);
   });
 });
 
-it("errors when no arguments are provided", done => {
-  expect.assertions(1);
+test("errors when no arguments are provided", t => {
+  t.plan(1);
   const cli = spawnCli();
   cli.on("exit", code => {
-    expect(code).toBe(1);
-    done();
+    t.equal(code, 1);
   });
 });
 
-it("errors when the package name argument is formatted incorrectly", done => {
-  expect.assertions(1);
+test("errors when the package name argument is formatted incorrectly", t => {
+  t.plan(1);
   const cli = spawnCli("heyhe#@&*()");
   cli.on("exit", code => {
-    expect(code).toBe(1);
-    done();
+    t.equal(code, 1);
   });
 });
 
-it("only installs peerDependencies when `--only-peers` is specified", async () => {
-  expect.assertions(1);
-  const command = await getCliInstallCommand([
-    "eslint-config-airbnb",
-    "--only-peers"
-  ]);
-  expect(command).not.toEqual(
-    expect.stringMatching(/\beslint-config-airbnb\b/)
+test("only installs peerDependencies when `--only-peers` is specified", t => {
+  t.plan(1);
+  getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
+    command => {
+      t.equal(/\beslint-config-airbnb\b/.test(command), false);
+    },
+    t.fail
   );
 });
 
-it("adds an explicit `--no-save` when using `--silent` with NPM", async () => {
-  expect.assertions(1);
-  const command = await getCliInstallCommand([
-    "eslint-config-airbnb",
-    "--silent"
-  ]);
-  expect(command).not.toEqual(expect.stringMatching(/\b--no-save\b/));
+test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
+  t.plan(1);
+  getCliInstallCommand(["eslint-config-airbnb", "--silent"]).then(command => {
+    t.equal(/\b--no-save\b/.test(command), false);
+  }, t.fail);
 });
 
 // @todo - tests for the actual install process
