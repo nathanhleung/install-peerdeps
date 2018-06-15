@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { confirm } from "promptly";
-import hasYarn from "has-yarn";
 import clc from "cli-color";
 
+import hasYarn from "./has-yarn";
 import pkg from "../package.json";
 import installPeerDeps from "./install-peerdeps";
 import { parsePackageString } from "./helpers";

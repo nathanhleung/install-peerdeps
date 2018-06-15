@@ -37,7 +37,6 @@
   "dependencies": {
     "cli-color": "^1.2.0",
     "commander": "^2.11.0",
-    "has-yarn": "^1.0.0",
     "promptly": "^2.1.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
