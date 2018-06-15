@@ -1,10 +1,20 @@
 language: node_js
 node_js:
-  - "node"
+  - "10"
+  - "8"
   - "6"
   - "4"
   - "0.10"
 cache: yarn
 script:
-  - npm run lint
-  - npm test
+  - if [ "${LINT-}" = 'true']; then npm run lint; fi
+  - if [ "${TEST-}" = 'true' ]; then npm test; fi
+env:
+  - TEST=true
+matrix:
+  fast_finish: true
+  include:
+    - node_js: "node"
+      env: LINT=true
+  allow_failures:
+    - node_js: "0.10" # due to jest
