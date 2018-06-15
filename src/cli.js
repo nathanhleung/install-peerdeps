@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import "babel-polyfill";
+
 import { Command } from "commander";
 import { confirm } from "promptly";
 import clc from "cli-color";

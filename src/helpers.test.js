@@ -1,29 +1,32 @@
+import test from "tape";
 import { parsePackageString } from "./helpers";
 
-it("parses package strings correctly", () => {
-  expect.assertions(12);
+test("parses package strings correctly", t => {
+  t.plan(12);
 
   const installPeerdeps = parsePackageString("install-peerdeps@1.4.0");
-  expect(installPeerdeps.packageName).toBe("install-peerdeps");
-  expect(installPeerdeps.packageVersion).toBe("1.4.0");
+  t.equal(installPeerdeps.packageName, "install-peerdeps");
+  t.equal(installPeerdeps.packageVersion, "1.4.0");
 
   const angularCore = parsePackageString("@angular/core@5.0.0-rc.9");
-  expect(angularCore.packageName).toBe("@angular/core");
-  expect(angularCore.packageVersion).toBe("5.0.0-rc.9");
+  t.equal(angularCore.packageName, "@angular/core");
+  t.equal(angularCore.packageVersion, "5.0.0-rc.9");
 
   const bootstrap = parsePackageString("bootstrap@4.0.0-beta");
-  expect(bootstrap.packageName).toBe("bootstrap");
-  expect(bootstrap.packageVersion).toBe("4.0.0-beta");
+  t.equal(bootstrap.packageName, "bootstrap");
+  t.equal(bootstrap.packageVersion, "4.0.0-beta");
 
   const koa = parsePackageString("koa@next");
-  expect(koa.packageName).toBe("koa");
-  expect(koa.packageVersion).toBe("next");
+  t.equal(koa.packageName, "koa");
+  t.equal(koa.packageVersion, "next");
 
   const enzymeAdapter = parsePackageString("enzyme-adapter-react-15.4@1.0.5");
-  expect(enzymeAdapter.packageName).toBe("enzyme-adapter-react-15.4");
-  expect(enzymeAdapter.packageVersion).toBe("1.0.5");
+  t.equal(enzymeAdapter.packageName, "enzyme-adapter-react-15.4");
+  t.equal(enzymeAdapter.packageVersion, "1.0.5");
 
   const eslintPluginNode = parsePackageString("eslint-plugin-node@^6.x");
-  expect(eslintPluginNode.packageName).toBe("eslint-plugin-node");
-  expect(eslintPluginNode.packageVersion).toBe("^6.x");
+  t.equal(eslintPluginNode.packageName, "eslint-plugin-node");
+  t.equal(eslintPluginNode.packageVersion, "^6.x");
+
+  t.end();
 });
