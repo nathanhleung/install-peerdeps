@@ -1,3 +1,7 @@
+# 1.7.1
+* Allow Node.js 0.10 test failure due to Jest incompatibility
+* Inline `has-yarn` for compatibility with earlier Node versions
+
 # 1.7.0
 * Fixed #25 - allow version number ranges to be installed
 * Fixed #24 - allow extra args to be passed through with `--`
