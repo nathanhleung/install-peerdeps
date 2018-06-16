@@ -4,12 +4,15 @@
   "description": "CLI to automatically install peerDeps",
   "main": "lib/cli.js",
   "scripts": {
-    "tape": "tape --require=babel-register --require=babel-polyfill",
-    "tests-only": "npm run tape 'src/*.test.js'",
+    "tape": "tape --require=babel-polyfill",
+    "pretests-only": "npm run build:test",
+    "tests-only": "npm run tape 'build-test/*.test.js'",
     "lint": "eslint src/ --fix",
     "clean": "rimraf lib",
     "prebuild": "npm run clean",
     "build": "babel src --out-dir lib --ignore *.test.js",
+    "prebuild:test": "rimraf test",
+    "build:test": "babel src --out-dir test",
     "prepare": "npm run build",
     "pretest": "npm run lint",
     "test": "npm run tests-only"
@@ -51,7 +54,6 @@
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.23.0",
     "eslint": "^4.9.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-prettier": "^2.7.0",

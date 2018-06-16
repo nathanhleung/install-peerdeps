@@ -1,5 +1,6 @@
 # Don't commit Babel-compiled code to source control
 /lib/
+/test/
 
 ## From https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore
 # Logs
