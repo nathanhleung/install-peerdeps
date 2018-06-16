@@ -4,10 +4,14 @@
   "description": "CLI to automatically install peerDeps",
   "main": "lib/cli.js",
   "scripts": {
-    "test": "jest",
+    "tests-only": "jest",
     "lint": "eslint src/ --fix",
+    "clean": "rimraf lib",
+    "prebuild": "npm run clean",
     "build": "babel src --out-dir lib --ignore *.test.js",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "pretest": "npm run lint",
+    "test": "npm run tests-only"
   },
   "preferGlobal": true,
   "bin": {
@@ -55,6 +59,7 @@
     "eslint-plugin-prettier": "^2.3.1",
     "eslint-plugin-react": "^7.4.0",
     "jest": "^21.2.1",
-    "prettier": "^1.8.1"
+    "prettier": "^1.8.1",
+    "rimraf": "^2.6.2"
   }
 }
