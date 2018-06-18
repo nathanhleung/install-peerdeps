@@ -4,7 +4,10 @@
 
 > _Disclaimer: Airbnb is not affiliated with, and does not endorse, this CLI tool_
 
-[![Build Status](https://travis-ci.org/nathanhleung/install-peerdeps.png?branch=master)](https://travis-ci.org/nathanhleung/install-peerdeps) [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps) [![devDependency Status](https://david-dm.org/nathanhleung/install-peerdeps/dev-status.svg)](https://david-dm.org/nathanhleung/install-peerdeps?type=dev)
+[![Build Status](https://travis-ci.org/nathanhleung/install-peerdeps.png?branch=master)](https://travis-ci.org/nathanhleung/install-peerdeps) [![Node version](https://img.shields.io/node/v/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps) [![devDependency Status](https://david-dm.org/nathanhleung/install-peerdeps/dev-status.svg)](https://david-dm.org/nathanhleung/install-peerdeps?type=dev)
+
+[![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![npm total downloads](https://img.shields.io/npm/dt/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![npm monthly downloads](https://img.shields.io/npm/dm/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) 
+[![GitHub license](https://img.shields.io/github/license/nathanhleung/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)
 
 [![https://nodei.co/npm/install-peerdeps.png?downloads=true&downloadRank=true&stars=true](https://nodei.co/npm/install-peerdeps.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/install-peerdeps)
 
