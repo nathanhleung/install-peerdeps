@@ -1,3 +1,6 @@
+# 1.8.0
+* Merged #29 by @ljharb - convert tests to Tape
+
 # 1.7.1
 * Allow Node.js 0.10 test failure due to Jest incompatibility
 * Inline `has-yarn` for compatibility with earlier Node versions
