@@ -71,7 +71,9 @@ if (program.args.length === 0) {
     `${C.errorText} Please specify a package to install with peerDeps.`
   );
   program.help();
-  process.exit(1);
+  // An exit code of "9" indicates an invalid argument
+  // See https://nodejs.org/api/process.html#process_exit_codes
+  process.exit(9);
 }
 
 // The first argument after the options is the name of the package
@@ -83,7 +85,7 @@ const { packageName, packageVersion } = parsePackageString(packageString);
 // print the format error
 if (!packageName) {
   printPackageFormatError();
-  process.exit(1);
+  process.exit(9);
 }
 
 // Default package manager is npm
@@ -96,7 +98,7 @@ if (program.yarn) {
 // Yarn does not allow silent install of dependencies
 if (program.yarn && program.silent) {
   console.log(`${C.errorText} Option --silent cannot be used with --yarn.`);
-  process.exit(1);
+  process.exit(9);
 }
 
 // Dev option can't be used with silent,
@@ -104,7 +106,7 @@ if (program.yarn && program.silent) {
 // as a devDependency
 if (program.dev && program.silent) {
   console.log(`${C.errorText} Option --silent cannot be used with --dev.`);
-  process.exit(1);
+  process.exit(9);
 }
 
 if (program.registry) {

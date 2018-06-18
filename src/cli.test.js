@@ -42,7 +42,10 @@ async function getCliInstallCommand(extraArgs) {
 test("errors when more than one package is provided", t => {
   const cli = spawnCli(["eslint-config-airbnb", "angular"]);
   cli.on("exit", code => {
-    t.equal(code, 1);
+    // We should be able to do t.equal(code, 1), but earlier Node versions
+    // handle uncaught exceptions differently so we can't (0.10 returns 8,
+    // 0.12 returns 9).
+    t.notEqual(code, 0);
     t.end();
   });
 });
@@ -50,7 +53,7 @@ test("errors when more than one package is provided", t => {
 test("errors when no arguments are provided", t => {
   const cli = spawnCli();
   cli.on("exit", code => {
-    t.equal(code, 1);
+    t.notEqual(code, 0);
     t.end();
   });
 });
@@ -58,7 +61,7 @@ test("errors when no arguments are provided", t => {
 test("errors when the package name argument is formatted incorrectly", t => {
   const cli = spawnCli("heyhe#@&*()");
   cli.on("exit", code => {
-    t.equal(code, 1);
+    t.notEqual(code, 0);
     t.end();
   });
 });
