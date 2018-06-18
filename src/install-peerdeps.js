@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
+import "babel-polyfill";
 
 import request from "request-promise-native";
 import { spawn } from "child_process";
