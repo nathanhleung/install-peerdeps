@@ -40,46 +40,43 @@ async function getCliInstallCommand(extraArgs) {
 }
 
 test("errors when more than one package is provided", t => {
-  // Declare # of assertions before every test to ensure assertions
-  // are run - this prevents async/callback errors where expect() is
-  // never called
-  t.plan(1);
   const cli = spawnCli(["eslint-config-airbnb", "angular"]);
   cli.on("exit", code => {
     t.equal(code, 1);
+    t.end();
   });
 });
 
 test("errors when no arguments are provided", t => {
-  t.plan(1);
   const cli = spawnCli();
   cli.on("exit", code => {
     t.equal(code, 1);
+    t.end();
   });
 });
 
 test("errors when the package name argument is formatted incorrectly", t => {
-  t.plan(1);
   const cli = spawnCli("heyhe#@&*()");
   cli.on("exit", code => {
     t.equal(code, 1);
+    t.end();
   });
 });
 
 test("only installs peerDependencies when `--only-peers` is specified", t => {
-  t.plan(1);
   getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
     command => {
       t.equal(/\beslint-config-airbnb\b/.test(command), false);
+      t.end();
     },
     t.fail
   );
 });
 
 test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
-  t.plan(1);
   getCliInstallCommand(["eslint-config-airbnb", "--silent"]).then(command => {
     t.equal(/\b--no-save\b/.test(command), false);
+    t.end();
   }, t.fail);
 });
 

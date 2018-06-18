@@ -181,9 +181,9 @@ function installCb(err) {
   let successMessage = `${C.successText} ${packageName}
   and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
-    successMessage = `${C.successText} The peerDeps of ${
-      packageName
-    } were installed successfully.`;
+    successMessage = `${
+      C.successText
+    } The peerDeps of ${packageName} were installed successfully.`;
   }
   console.log(successMessage);
   process.exit(0);

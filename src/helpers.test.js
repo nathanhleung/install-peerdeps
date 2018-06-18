@@ -2,8 +2,6 @@ import test from "tape";
 import { parsePackageString } from "./helpers";
 
 test("parses package strings correctly", t => {
-  t.plan(12);
-
   const installPeerdeps = parsePackageString("install-peerdeps@1.4.0");
   t.equal(installPeerdeps.packageName, "install-peerdeps");
   t.equal(installPeerdeps.packageVersion, "1.4.0");

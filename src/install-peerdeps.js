@@ -226,9 +226,7 @@ function installPeerDeps(
       const commandString = `${packageManager} ${args.join(" ")}\n`;
       if (dryRun) {
         console.log(
-          `This command would have been run to install ${packageName}@${
-            version
-          }:`
+          `This command would have been run to install ${packageName}@${version}:`
         );
         console.log(commandString);
       } else {
