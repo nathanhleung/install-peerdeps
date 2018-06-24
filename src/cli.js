@@ -59,6 +59,10 @@ program
     "-a, --auth <token>",
     "Provide an NPM authToken for private packages."
   )
+  .option(
+    "-p, --proxy <http_proxy>",
+    "Enable http proxy to connect to the registry"
+  )
   .usage("<package>[@<version>], default version is 'latest'")
   .parse(process.argv);
 
@@ -133,7 +137,8 @@ const options = {
   dryRun: program.dryRun,
   auth: program.auth,
   // Args after -- will be passed through
-  extraArgs: program.args.slice(1)
+  extraArgs: program.args.slice(1),
+  proxy: program.proxy
 };
 
 // Disabled this rule so we can hoist the callback

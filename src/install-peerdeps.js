@@ -2,6 +2,7 @@
 import "babel-polyfill";
 
 import request from "request-promise-native";
+import HttpsProxyAgent from "https-proxy-agent";
 import { spawn } from "child_process";
 import { maxSatisfying } from "semver";
 import * as C from "./constants";
@@ -30,20 +31,31 @@ function encodePackageName(packageName) {
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
-function getPackageData({ encodedPackageName, registry, auth }) {
+function getPackageData({ encodedPackageName, registry, auth, proxy }) {
   const requestHeaders = {};
   if (auth) {
     requestHeaders.Authorization = `Bearer ${auth}`;
   }
-  return request({
+
+  var options = {
     uri: `${registry}/${encodedPackageName}`,
     resolveWithFullResponse: true,
     // When simple is true, all non-200 status codes throw an
     // error. However, we want to handle status code errors in
     // the .then(), so we make simple false.
     simple: false,
-    headers: requestHeaders
-  }).then(response => {
+    headers: requestHeaders  
+  };
+
+  // If any proxy setting were passed then include the http proxy agent.
+  var requestProxy = process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
+  if (requestProxy !== 'undefined') {
+    options.agent = new HttpsProxyAgent(requestProxy);
+  }
+
+  return request(
+    options
+  ).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
       throw new Error(
@@ -112,12 +124,13 @@ function installPeerDeps(
     silent,
     dryRun,
     auth,
-    extraArgs
+    extraArgs,
+    proxy
   },
   cb
 ) {
   const encodedPackageName = encodePackageName(packageName);
-  getPackageData({ encodedPackageName, registry, auth })
+  getPackageData({ encodedPackageName, registry, auth, proxy })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {
