@@ -205,6 +205,11 @@ function installPeerDeps(
       }
 
       let args = [];
+      // If any proxy setting were passed then include the http proxy agent.
+      var requestProxy = process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
+      if (requestProxy !== 'undefined') {
+        args = args.concat("--proxy " + requestProxy);
+      }
       // I know I can push it, but I'll just
       // keep concatenating for consistency
       // global must preceed add in yarn; npm doesn't care
