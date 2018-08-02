@@ -190,10 +190,18 @@ function installPeerDeps(
       // I know I can push it, but I'll just
       // keep concatenating for consistency
       args = args.concat(subcommand);
+      // See issue #33 - issue with "-0"
+      function fixPackageName(packageName) {
+        if (packageName.substr(-2) === "-0") {
+          // Remove -0
+          return packageName.substr(0, packageName.length - 2);
+        }
+        return packageName;
+      }
       // If we have spaces in our args spawn()
       // cries foul so we'll split the packagesString
       // into an array of individual packages
-      args = args.concat(packagesString.split(" "));
+      args = args.concat(packagesString.split(" ").map(fixPackageName));
       // If devFlag is empty, then we'd be adding an empty arg
       // That causes the command to fail
       if (devFlag !== "") {
