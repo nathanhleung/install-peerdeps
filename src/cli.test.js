@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import path from "path";
 import test from "tape";
 
 /**
@@ -9,7 +10,8 @@ import test from "tape";
 function spawnCli(extraArgs) {
   return spawn(
     "node",
-    ["--require", "babel-register", "cli.js"].concat(extraArgs)
+    ["--require", "babel-register", "cli.js"].concat(extraArgs),
+    { cwd: path.join(__dirname, "..", "fixtures", "sandbox") }
   );
 }
 
@@ -17,6 +19,7 @@ function spawnCli(extraArgs) {
  * Gets the resulting install command given the provided arguments
  * @async
  * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @param {boolean} noDryRun - whether to actually run the command or not
  * @returns {Promise<string>} - a Promise which resolves to the resulting install command
  */
 async function getCliInstallCommand(extraArgs) {
@@ -81,6 +84,14 @@ test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
     t.equal(/\b--no-save\b/.test(command), false);
     t.end();
   }, t.fail);
+});
+
+test("installs packages correctly even if package name ends with '-0'", t => {
+  const cli = spawnCli("enzyme-adapter-react-16@1.1.1");
+  cli.on("exit", code => {
+    t.equal(code, 0, `errored, exit code was ${code}`);
+    t.end();
+  });
 });
 
 // @todo - tests for the actual install process
