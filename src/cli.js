@@ -76,6 +76,18 @@ if (program.args.length === 0) {
   process.exit(9);
 }
 
+// Make sure we're installing no more than one package
+if (program.args.length > 1) {
+  console.log(
+    `${
+      C.errorText
+    } Please specify ONE package at a time to install with peerDeps.`
+  );
+  // An exit code of "9" indicates an invalid argument
+  // See https://nodejs.org/api/process.html#process_exit_codes
+  process.exit(9);
+}
+
 // The first argument after the options is the name of the package
 const packageString = program.args[0];
 
