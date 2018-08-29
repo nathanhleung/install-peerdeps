@@ -67,6 +67,5 @@ npm-shrinkwrap.json
 package-lock.json
 yarn.lock
 
-# Don't ignore stuff in fixtures directory
-# (e.g. yarn.lock)
-!fixtures/**/*
+# Fixtures ignore
+fixtures/sandbox/node_modules/
