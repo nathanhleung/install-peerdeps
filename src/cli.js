@@ -44,6 +44,7 @@ program
   .version(version)
   .description("Installs the specified package along with correct peerDeps.")
   .option("-d, --dev", "Install the package as a devDependency")
+  .option("-g, --global", "Install the package globally")
   .option("-o, --only-peers", "Install only peerDependencies of the package")
   .option("-S, --silent", "If using npm, don't save in package.json")
   .option("-Y, --yarn", "Install with Yarn")
@@ -121,6 +122,14 @@ if (program.dev && program.silent) {
   process.exit(9);
 }
 
+// Dev option can't be used with global,
+// since --dev means it should be saved
+// as a devDependency (locally)
+if (program.dev && program.silent) {
+  console.log(`${C.errorText} Option --dev cannot be used with --global.`);
+  process.exit(9);
+}
+
 if (program.registry) {
   const { registry } = program;
   // Check if last character in registry is a trailing slash
@@ -139,6 +148,7 @@ const options = {
   // If registry is undefined, default to the official NPM registry
   registry: program.registry || "https://registry.npmjs.com",
   dev: program.dev,
+  global: program.global,
   onlyPeers: program.onlyPeers,
   silent: program.silent,
   packageManager,
