@@ -26,16 +26,23 @@ function spawnCli(extraArgs) {
  */
 async function getCliInstallCommand(extraArgs) {
   return new Promise((resolve, reject) => {
-    // Always do dry run, so the command is the last line
-    // outputted
+    // Always do dry run, so the command is the last
+    // non-whitespace line written to stdout
     const cli = spawnCli(extraArgs.concat("--dry-run"));
-    const lines = [];
+    const fullstdout = [];
     cli.stdout.on("data", data => {
-      lines.push(data);
+      // not guaranteed to be line-by-line in fact these can be Buffers
+      fullstdout.push(data);
     });
     cli.on("close", () => {
-      // The command will be the last line outputted by the cli
-      // during a dry run
+      // The command will be the last non-whitespace line written to
+      // stdout by the cli during a dry run
+
+      const lines = fullstdout
+        .join("")
+        .split(/\r?\n/g)
+        .filter(l => !!l.trim());
+
       resolve(lines[lines.length - 1]);
     });
     // Make sure to call reject() on error so that the Promise
@@ -50,11 +57,7 @@ test("errors when more than one package is provided", t => {
     // We should be able to do t.equal(code, 1), but earlier Node versions
     // handle uncaught exceptions differently so we can't (0.10 returns 8,
     // 0.12 returns 9).
-    t.notEqual(
-      code,
-      0,
-      `errored, exit code was ${code}.`
-    );
+    t.notEqual(code, 0, `errored, exit code was ${code}.`);
     t.end();
   });
 });
@@ -78,16 +81,45 @@ test("errors when the package name argument is formatted incorrectly", t => {
 test("only installs peerDependencies when `--only-peers` is specified", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
     command => {
-      t.equal(/\beslint-config-airbnb\b/.test(command), false);
+      const cmd = command.toString();
+      t.equal(/\beslint-config-airbnb\b/.test(cmd), false);
       t.end();
     },
     t.fail
   );
 });
 
+test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", t => {
+  getCliInstallCommand(["eslint-config-airbnb", "--global", "-Y"]).then(
+    command => {
+      const cmd = command.toString();
+      t.equal(/\byarn global\b/.test(cmd), true);
+      t.end();
+    },
+    t.fail
+  );
+});
+
+test("adds explicit `--global` flag when using `--global` with NPM", t => {
+  getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
+    const cmd = command.toString();
+    t.equal(/\bnpm\s--global\b/.test(cmd), true);
+    t.end();
+  }, t.fail);
+});
+
+test("does not add `--save` when using `--global` with NPM", t => {
+  getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
+    const cmd = command.toString();
+    t.equal(/\s--save\b/.test(cmd), false);
+    t.end();
+  }, t.fail);
+});
+
 test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--silent"]).then(command => {
-    t.equal(/\b--no-save\b/.test(command), false);
+    const cmd = command.toString();
+    t.equal(/\s--no-save\b/.test(cmd), true);
     t.end();
   }, t.fail);
 });
