@@ -120,6 +120,7 @@ function installPeerDeps(
     packageManager,
     registry,
     dev,
+    global,
     onlyPeers,
     silent,
     dryRun,
@@ -186,6 +187,10 @@ function installPeerDeps(
         }
       });
       // Construct command based on package manager of current project
+      let globalFlag = packageManager === C.yarn ? "global" : "--global";
+      if (!global) {
+        globalFlag = "";
+      }
       const subcommand = packageManager === C.yarn ? "add" : "install";
       let devFlag = packageManager === C.yarn ? "--dev" : "--save-dev";
       if (!dev) {
@@ -207,6 +212,8 @@ function installPeerDeps(
       }
       // I know I can push it, but I'll just
       // keep concatenating for consistency
+      // global must preceed add in yarn; npm doesn't care
+      args = args.concat(globalFlag);
       args = args.concat(subcommand);
       // See issue #33 - issue with "-0"
       function fixPackageName(packageName) {
@@ -226,9 +233,9 @@ function installPeerDeps(
         args = args.concat(devFlag);
       }
       // If we're using NPM, and there's no dev flag,
-      // and it's not a silent install make sure to save
-      // deps in package.json under "dependencies"
-      if (devFlag === "" && packageManager === C.npm && !silent) {
+      // and it's not a silent install and it's not a global install
+      // make sure to save deps in package.json under "dependencies"
+      if (devFlag === "" && packageManager === C.npm && !silent && !global) {
         args = args.concat("--save");
       }
       // If we are using NPM, and there's no dev flag,
