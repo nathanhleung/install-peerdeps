@@ -37,25 +37,24 @@ function getPackageData({ encodedPackageName, registry, auth, proxy }) {
     requestHeaders.Authorization = `Bearer ${auth}`;
   }
 
-  var options = {
+  const options = {
     uri: `${registry}/${encodedPackageName}`,
     resolveWithFullResponse: true,
     // When simple is true, all non-200 status codes throw an
     // error. However, we want to handle status code errors in
     // the .then(), so we make simple false.
     simple: false,
-    headers: requestHeaders  
+    headers: requestHeaders
   };
 
   // If any proxy setting were passed then include the http proxy agent.
-  var requestProxy = process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
-  if (requestProxy !== 'undefined') {
+  const requestProxy =
+    process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
+  if (requestProxy !== "undefined") {
     options.agent = new HttpsProxyAgent(requestProxy);
   }
 
-  return request(
-    options
-  ).then(response => {
+  return request(options).then(response => {
     const { statusCode } = response;
     if (statusCode === 404) {
       throw new Error(
@@ -206,9 +205,10 @@ function installPeerDeps(
 
       let args = [];
       // If any proxy setting were passed then include the http proxy agent.
-      var requestProxy = process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
-      if (requestProxy !== 'undefined') {
-        args = args.concat("--proxy " + requestProxy);
+      const requestProxy =
+        process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
+      if (requestProxy !== "undefined") {
+        args = args.concat(`--proxy ${requestProxy}`);
       }
       // I know I can push it, but I'll just
       // keep concatenating for consistency

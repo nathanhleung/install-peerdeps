@@ -1,19 +1,20 @@
 import { spawn } from "child_process";
 import path from "path";
 import test from "tape";
+import fs from "fs";
 
 /**
  * Spawns the CLI with the provided arguments
  * @param {string[]} extraArgs - arguments to be passed to the CLI
  * @returns {ChildProcess} - an EventEmitter that represents the spawned child process
  */
-function spawnCli(extraArgs) {
+function spawnCli(extraArgs, cwd = "sandbox") {
   return spawn(
     "node",
     ["--require", "babel-register", path.join(__dirname, "cli.js")].concat(
       extraArgs
     ),
-    { cwd: path.join(__dirname, "..", "fixtures", "sandbox") }
+    { cwd: path.join(__dirname, "..", "fixtures", cwd) }
   );
 }
 
@@ -129,6 +130,53 @@ test("installs packages correctly even if package name ends with '-0'", t => {
   cli.on("exit", code => {
     t.equal(code, 0, `errored, exit code was ${code}.`);
     t.end();
+  });
+});
+
+test.only("doesn't replace existing installed peer dependencies", t => {
+  const fullCwd = path.join(__dirname, "..", "fixtures", "replace");
+
+  const npm = spawn("npm", ["install", "data-forge"], {
+    cwd: fullCwd
+  });
+
+  function onCliExit(code, forgeVersion) {
+    if (code !== 0) {
+      t.fail(`errored, cli exit code was ${code}.`);
+    }
+
+    fs.readFile(`${fullCwd}/package.json`, "utf8", (err, data) => {
+      if (err) {
+        t.fail(`errored, couldn't open package.json`);
+      }
+
+      const pkg = JSON.parse(data);
+      const newForgeVersion = pkg.dependencies["data-forge"];
+
+      t.equal(
+        newForgeVersion,
+        forgeVersion,
+        `error, replaced old peer. ${newForgeVersion} replaced ${forgeVersion}`
+      );
+    });
+  }
+
+  npm.on("exit", code => {
+    if (code !== 0) {
+      t.fail(`errored, npm install exit code was ${code}.`);
+    }
+
+    fs.readFile(`${fullCwd}/package.json`, "utf8", (err, data) => {
+      if (err) {
+        t.fail(`errored, couldn't open package.json`);
+      }
+
+      const pkg = JSON.parse(data);
+      const forgeVersion = pkg.dependencies["data-forge"];
+
+      const cli = spawnCli(["data-forge-indicators"], "replace");
+      cli.on("exit", cliExitCode => onCliExit(cliExitCode, forgeVersion));
+    });
   });
 });
 
