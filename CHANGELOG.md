@@ -1,3 +1,6 @@
+# 1.10.0
+- Fixed #41 - allow extra arguments to be passed with `--extra-args` flag
+
 # 1.9.0
 
 - Merge #32 by @nandub - add `--proxy` flag
