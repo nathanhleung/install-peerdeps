@@ -75,6 +75,10 @@ Only core Yarn and NPM arguments relating to package installation are officially
 
 `install-peerdeps <package> --dev -Y --extra-args "-W"`
 
+Here's how you'd use `--extra-args` to pass a custom NPM config option (in this case, disabling `strict-ssl` when accessing a custom registry over HTTPS):
+
+`install-peerdeps <package> -p http://proxy:8080 --extra-args "--strict-ssl false"`
+
 ## Examples
 
 ### Basic Peer Dependency Installation
