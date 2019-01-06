@@ -64,6 +64,10 @@ program
     "-p, --proxy <http_proxy>",
     "Enable http proxy to connect to the registry"
   )
+  .option(
+    '-x, --extra-args "<extra_args>"',
+    "Extra arguments to pass through to NPM or Yarn"
+  )
   .usage("<package>[@<version>], default version is 'latest'")
   .parse(process.argv);
 
@@ -86,7 +90,7 @@ if (program.args.length > 1) {
   console.log(
     `${
       C.errorText
-    } Please specify ONE package at a time to install with peerDeps.`
+    } Too many arguments. Please specify ONE package at a time to install with peerDeps. Alternatively, pass extra arguments with --extra-args "<extra_args>".`
   );
   // An exit code of "9" indicates an invalid argument
   // See https://nodejs.org/api/process.html#process_exit_codes
@@ -159,7 +163,7 @@ const options = {
   dryRun: program.dryRun,
   auth: program.auth,
   // Args after -- will be passed through
-  extraArgs: program.args.slice(1),
+  extraArgs: program.extraArgs,
   proxy: program.proxy
 };
 

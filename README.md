@@ -55,24 +55,25 @@ Installs the specified package along with correct peerDeps.
 
 Options:
 
-  -V, --version             output the version number
-  -d, --dev                 Install the package as a devDependency
-  -g, --global              Install the package globally
-  -o, --only-peers          Install only peerDependencies of the package
-  -S, --silent              If using npm, don't save in package.json
-  -Y, --yarn                Install with Yarn
-  -r, --registry <uri>      Install from custom registry (defaults to NPM registry)
-  --dry-run                 Do not install packages, but show the install command that will be run
-  -a, --auth <token>        Provide an NPM authToken for private packages.
-  -p, --proxy <http_proxy>  Enable http proxy to connect to the registry
-  -h, --help                output usage information
+  -V, --version                    output the version number
+  -d, --dev                        Install the package as a devDependency
+  -g, --global                     Install the package globally
+  -o, --only-peers                 Install only peerDependencies of the package
+  -S, --silent                     If using npm, don't save in package.json
+  -Y, --yarn                       Install with Yarn
+  -r, --registry <uri>             Install from custom registry (defaults to NPM registry)
+  --dry-run                        Do not install packages, but show the install command that will be run
+  -a, --auth <token>               Provide an NPM authToken for private packages.
+  -p, --proxy <http_proxy>         Enable http proxy to connect to the registry
+  -x, --extra-args "<extra_args>"  Extra arguments to pass through to NPM or Yarn
+  -h, --help                       output usage information
 ```
 
 ### Extra Arguments
 
-Only core Yarn and NPM arguments relating to package installation are officially provided by `install-peerdeps`. However, if you'd like to pass through additional arguments, you may do so with `--`. Here's how you'd install a package into a Yarn-workspace-enabled repository:
+Only core Yarn and NPM arguments relating to package installation are officially provided by `install-peerdeps`. However, if you'd like to pass through additional arguments, you may do so with `--extra-args`. Here's how you'd install a package into a Yarn-workspace-enabled repository:
 
-`install-peerdeps <package> --dev -Y -- -W`
+`install-peerdeps <package> --dev -Y --extra-args "-W"`
 
 ## Examples
 
