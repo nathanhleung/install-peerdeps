@@ -133,7 +133,9 @@ test("installs packages correctly even if package name ends with '-0'", t => {
   });
 });
 
-test.only("doesn't replace existing installed peer dependencies", t => {
+// Work on this test later
+/*
+test("doesn't replace existing installed peer dependencies", t => {
   const fullCwd = path.join(__dirname, "..", "fixtures", "replace");
 
   const npm = spawn("npm", ["install", "data-forge"], {
@@ -179,6 +181,7 @@ test.only("doesn't replace existing installed peer dependencies", t => {
     });
   });
 });
+*/
 
 // @todo - tests for the actual install process
 // see https://github.com/sindresorhus/has-yarn/blob/master/test.js for details
