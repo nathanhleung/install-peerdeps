@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import path from "path";
 import test from "tape";
-import fs from "fs";
+// import fs from "fs";
 
 /**
  * Spawns the CLI with the provided arguments

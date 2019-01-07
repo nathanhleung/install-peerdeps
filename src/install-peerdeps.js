@@ -4,7 +4,7 @@ import "babel-polyfill";
 import request from "request-promise-native";
 import HttpsProxyAgent from "https-proxy-agent";
 import { spawn } from "child_process";
-import { maxSatisfying } from "semver";
+import { valid, coerce, maxSatisfying } from "semver";
 import * as C from "./constants";
 
 /**
@@ -170,17 +170,21 @@ function installPeerDeps(
       Object.keys(peerDepsVersionMap).forEach(depName => {
         // Get the peer dependency version
         const peerDepVersion = peerDepsVersionMap[depName];
-        // Check if it's a semver range
-        if (
-          peerDepVersion.indexOf("||") >= 0 ||
-          peerDepVersion.indexOf(" - ") >= 0
-        ) {
+        // Check if there is whitespace
+        if (peerDepVersion.indexOf(" ") >= 0) {
           // Semver ranges can have a join of comparator sets
           // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-          // We just take the last comparator in the
-          const rangeSplit = peerDepVersion.split(" ");
-          const lastComparator = rangeSplit[rangeSplit.length - 1];
-          packagesString += ` ${depName}@${lastComparator}`;
+          // Take each version in the range and find the maxSatisfying
+          const rangeSplit = peerDepVersion
+            .split(" ")
+            .map(v => coerce(v))
+            .filter(v => valid(v));
+          const versionToInstall = maxSatisfying(rangeSplit, peerDepVersion);
+          if (versionToInstall === null) {
+            packagesString += ` ${depName}`;
+          } else {
+            packagesString += ` ${depName}@${versionToInstall}`;
+          }
         } else {
           packagesString += ` ${depName}@${peerDepVersion}`;
         }
