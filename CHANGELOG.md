@@ -1,5 +1,10 @@
+# 1.10.1
+
+- Fixed #31 - use [`semver`](https://docs.npmjs.com/misc/semver) to handle version ranges with spaces
+
 # 1.10.0
-- Fixed #41 - allow extra arguments to be passed with `--extra-args` flag
+
+- Addressed #41 - allow extra arguments to be passed with `--extra-args` flag
 
 # 1.9.0
 
