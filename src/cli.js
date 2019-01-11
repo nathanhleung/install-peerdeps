@@ -163,7 +163,7 @@ const options = {
   dryRun: program.dryRun,
   auth: program.auth,
   // Args after -- will be passed through
-  extraArgs: program.extraArgs,
+  extraArgs: program.extraArgs || "",
   proxy: program.proxy
 };
 

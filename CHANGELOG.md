@@ -1,3 +1,7 @@
+# 1.10.2
+
+- Fixed #43 - check to see if `--extra-args` is undefined before appending to cli command
+
 # 1.10.1
 
 - Fixed #31 - use [`semver`](https://docs.npmjs.com/misc/semver) to handle version ranges with spaces
