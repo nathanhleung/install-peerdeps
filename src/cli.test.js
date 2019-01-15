@@ -1,7 +1,7 @@
-import { spawn } from "child_process";
+import { spawn, exec } from "child_process";
 import path from "path";
 import test from "tape";
-// import fs from "fs";
+import fs from "fs";
 
 /**
  * Spawns the CLI with the provided arguments
@@ -49,6 +49,50 @@ async function getCliInstallCommand(extraArgs) {
     // Make sure to call reject() on error so that the Promise
     // doesn't hang forever
     cli.on("error", err => reject(err));
+  });
+}
+
+/**
+ * Run a shell command.
+ * @param {string} cmd - The command to run.
+ * @param {string} cwd - Working directory for the command.
+ */
+function runCmd(cmd, cwd) {
+  return new Promise((resolve, reject) => {
+    console.log(`! ${cmd} in ${cwd}`);
+    exec(cmd, { cwd }, (err /* , stdout, stderr */) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Cleans and reinstalls modules in a fixture directory.
+ * @param {string} fixture - The fixture for which to reset node modules.
+ */
+async function resetFixtureNodeModules(fixture) {
+  const cwd = path.join(__dirname, "..", "fixtures", fixture);
+  await runCmd("rm -rf node_modules", cwd);
+  await runCmd("npm install", cwd);
+}
+
+/**
+ * Read a JSON file from disk.
+ * @param {string} filePath - The path to the JSON file to be read.
+ */
+function readJSON(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, "utf8", (err, packageFileJson) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(packageFileJson));
+      }
+    });
   });
 }
 
@@ -131,6 +175,32 @@ test("installs packages correctly even if package name ends with '-0'", t => {
     t.equal(code, 0, `errored, exit code was ${code}.`);
     t.end();
   });
+});
+
+test("peer dependency is not installed when a later version already exists", t => {
+  resetFixtureNodeModules("has-newer-peer-dep")
+    .then(() => {
+      const cli = spawnCli("data-forge-indicators", "has-newer-peer-dep");
+      cli.on("exit", code => {
+        t.equal(code, 0, `errored, exit code was ${code}`);
+
+        readJSON(
+          "fixtures/has-newer-peer-dep/node_modules/data-forge/package.json"
+        )
+          .then(packageFile => {
+            t.equal(packageFile.version, "1.3.3", "Bad version!");
+            t.end();
+          })
+          .catch(err => {
+            t.fail((err && err.stack) || err);
+            t.end();
+          });
+      });
+    })
+    .catch(err => {
+      t.fail((err && err.stack) || err);
+      t.end();
+    });
 });
 
 // Work on this test later
