@@ -4,6 +4,7 @@
 
 # Fixtures ignore
 fixtures/sandbox/node_modules/
+fixtures/has-newer-peer-dep/node_modules/
 
 ## From https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore
 # Logs

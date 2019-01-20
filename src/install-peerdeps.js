@@ -4,7 +4,9 @@ import "babel-polyfill";
 import request from "request-promise-native";
 import HttpsProxyAgent from "https-proxy-agent";
 import { spawn } from "child_process";
-import { valid, coerce, maxSatisfying } from "semver";
+import { valid, coerce, maxSatisfying, lt, clean } from "semver";
+import * as path from "path";
+import * as fs from "fs";
 import * as C from "./constants";
 
 /**
@@ -99,6 +101,27 @@ function spawnInstall(command, args) {
 }
 
 /**
+ * Read package file file from disk.
+ * Returns undefined if no package file exists.
+ */
+function readPackageFile() {
+  return new Promise((resolve, reject) => {
+    const packageFilePath = path.join(process.cwd(), "package.json");
+    if (fs.existsSync(packageFilePath)) {
+      fs.readFile(packageFilePath, "utf8", (err, packageFileJson) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(packageFileJson));
+        }
+      });
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -130,155 +153,179 @@ function installPeerDeps(
   cb
 ) {
   const encodedPackageName = encodePackageName(packageName);
-  getPackageData({ encodedPackageName, registry, auth, proxy })
-    // Catch before .then because the .then is so long
-    .catch(err => cb(err))
-    .then(data => {
-      const versions = Object.keys(data.versions);
-      // Get max satisfying semver version
-      let versionToInstall = maxSatisfying(versions, version);
-      // If we didn't find a version, maybe it's a tag
-      if (versionToInstall === null) {
-        const tags = Object.keys(data["dist-tags"]);
-        //  If it's not a valid tag, throw an error
-        if (tags.indexOf(version) === -1) {
-          return cb(new Error("That version or tag does not exist."));
-        }
-        // If the tag is valid, then find the version corresponding to the tag
-        versionToInstall = data["dist-tags"][version];
-      }
-
-      // Get peer dependencies for max satisfying version
-      const peerDepsVersionMap =
-        data.versions[versionToInstall].peerDependencies;
-
-      if (typeof peerDepsVersionMap === "undefined") {
-        cb(
-          new Error(
-            "The package you are trying to install has no peer " +
-              "dependencies. Use yarn or npm to install it manually."
-          )
-        );
-      }
-
-      // Construct packages string with correct versions for install
-      // If onlyPeers option is true, don't install the package itself,
-      // only its peers.
-      let packagesString = onlyPeers
-        ? ""
-        : `${packageName}@${versionToInstall}`;
-      Object.keys(peerDepsVersionMap).forEach(depName => {
-        // Get the peer dependency version
-        const peerDepVersion = peerDepsVersionMap[depName];
-        // Check if there is whitespace
-        if (peerDepVersion.indexOf(" ") >= 0) {
-          // Semver ranges can have a join of comparator sets
-          // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-          // Take each version in the range and find the maxSatisfying
-          const rangeSplit = peerDepVersion
-            .split(" ")
-            .map(v => coerce(v))
-            .filter(v => valid(v));
-          const versionToInstall = maxSatisfying(rangeSplit, peerDepVersion);
+  readPackageFile()
+    .then(localPackageFile =>
+      getPackageData({ encodedPackageName, registry, auth, proxy })
+        // Catch before .then because the .then is so long
+        .catch(err => cb(err))
+        .then(data => {
+          const versions = Object.keys(data.versions);
+          // Get max satisfying semver version
+          let versionToInstall = maxSatisfying(versions, version);
+          // If we didn't find a version, maybe it's a tag
           if (versionToInstall === null) {
-            packagesString += ` ${depName}`;
-          } else {
-            packagesString += ` ${depName}@${versionToInstall}`;
+            const tags = Object.keys(data["dist-tags"]);
+            //  If it's not a valid tag, throw an error
+            if (tags.indexOf(version) === -1) {
+              return cb(new Error("That version or tag does not exist."));
+            }
+            // If the tag is valid, then find the version corresponding to the tag
+            versionToInstall = data["dist-tags"][version];
           }
-        } else {
-          packagesString += ` ${depName}@${peerDepVersion}`;
-        }
-      });
-      // Construct command based on package manager of current project
-      let globalFlag = packageManager === C.yarn ? "global" : "--global";
-      if (!global) {
-        globalFlag = "";
-      }
-      const subcommand = packageManager === C.yarn ? "add" : "install";
-      let devFlag = packageManager === C.yarn ? "--dev" : "--save-dev";
-      if (!dev) {
-        devFlag = "";
-      }
-      const isWindows = process.platform === "win32";
-      let extra = "";
-      if (isWindows) {
-        // Spawn doesn't work without this extra stuff in Windows
-        // See https://github.com/nodejs/node/issues/3675
-        extra = ".cmd";
-      }
 
-      let args = [];
-      // If any proxy setting were passed then include the http proxy agent.
-      const requestProxy =
-        process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
-      if (requestProxy !== "undefined") {
-        args = args.concat(`--proxy ${requestProxy}`);
-      }
-      // I know I can push it, but I'll just
-      // keep concatenating for consistency
-      // global must preceed add in yarn; npm doesn't care
-      args = args.concat(globalFlag);
-      args = args.concat(subcommand);
-      // See issue #33 - issue with "-0"
-      function fixPackageName(packageName) {
-        if (packageName.substr(-2) === "-0") {
-          // Remove -0
-          return packageName.substr(0, packageName.length - 2);
-        }
-        return packageName;
-      }
-      // If we have spaces in our args spawn()
-      // cries foul so we'll split the packagesString
-      // into an array of individual packages
-      args = args.concat(packagesString.split(" ").map(fixPackageName));
-      // If devFlag is empty, then we'd be adding an empty arg
-      // That causes the command to fail
-      if (devFlag !== "") {
-        args = args.concat(devFlag);
-      }
-      // If we're using NPM, and there's no dev flag,
-      // and it's not a silent install and it's not a global install
-      // make sure to save deps in package.json under "dependencies"
-      if (devFlag === "" && packageManager === C.npm && !silent && !global) {
-        args = args.concat("--save");
-      }
-      // If we are using NPM, and there's no dev flag,
-      // and it IS a silent install,
-      // explicitly pass the --no-save flag
-      // (NPM v5+ defaults to using --save)
-      if (devFlag === "" && packageManager === C.npm && silent) {
-        args = args.concat("--no-save");
-      }
+          // Get peer dependencies for max satisfying version
+          const peerDepsVersionMap =
+            data.versions[versionToInstall].peerDependencies;
 
-      // Pass extra args through
-      if (extraArgs !== "") {
-        args = args.concat(extraArgs);
-      }
+          if (typeof peerDepsVersionMap === "undefined") {
+            cb(
+              new Error(
+                "The package you are trying to install has no peer " +
+                  "dependencies. Use yarn or npm to install it manually."
+              )
+            );
+          }
 
-      // Remove empty args
-      // There's a bug with Yarn 1.0 in which an empty arg
-      // causes the install process to fail with a "malformed
-      // response from the registry" error
-      args = args.filter(a => a !== "");
+          // Construct packages string with correct versions for install
+          // If onlyPeers option is true, don't install the package itself,
+          // only its peers.
+          let packagesString = onlyPeers
+            ? ""
+            : `${packageName}@${versionToInstall}`;
+          Object.keys(peerDepsVersionMap).forEach(depName => {
+            // Get the peer dependency version
+            const peerDepVersion = peerDepsVersionMap[depName];
+            const existingVersion =
+              localPackageFile &&
+              localPackageFile.dependencies[depName] &&
+              clean(localPackageFile.dependencies[depName]);
+            // Check if there is whitespace
+            if (peerDepVersion.indexOf(" ") >= 0) {
+              // Semver ranges can have a join of comparator sets
+              // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
+              // Take each version in the range and find the maxSatisfying
+              const rangeSplit = peerDepVersion
+                .split(" ")
+                .map(v => coerce(v))
+                .filter(v => valid(v));
+              const versionToInstall = maxSatisfying(
+                rangeSplit,
+                peerDepVersion
+              );
+              if (versionToInstall === null) {
+                if (!existingVersion) {
+                  packagesString += ` ${depName}`;
+                }
+              } else if (
+                !existingVersion ||
+                lt(existingVersion, versionToInstall)
+              ) {
+                packagesString += ` ${depName}@${versionToInstall}`;
+              }
+            } else if (
+              !existingVersion ||
+              lt(existingVersion, peerDepVersion)
+            ) {
+              packagesString += ` ${depName}@${peerDepVersion}`;
+            }
+          });
+          // Construct command based on package manager of current project
+          let globalFlag = packageManager === C.yarn ? "global" : "--global";
+          if (!global) {
+            globalFlag = "";
+          }
+          const subcommand = packageManager === C.yarn ? "add" : "install";
+          let devFlag = packageManager === C.yarn ? "--dev" : "--save-dev";
+          if (!dev) {
+            devFlag = "";
+          }
+          const isWindows = process.platform === "win32";
+          let extra = "";
+          if (isWindows) {
+            // Spawn doesn't work without this extra stuff in Windows
+            // See https://github.com/nodejs/node/issues/3675
+            extra = ".cmd";
+          }
 
-      //  Show user the command that's running
-      const commandString = `${packageManager} ${args.join(" ")}\n`;
-      if (dryRun) {
-        console.log(
-          `This command would have been run to install ${packageName}@${version}:`
-        );
-        console.log(commandString);
-      } else {
-        console.log(`Installing peerdeps for ${packageName}@${version}.`);
-        console.log(commandString);
-        spawnInstall(packageManager + extra, args)
-          .then(() => cb(null))
-          .catch(err => cb(err));
-      }
-    });
+          let args = [];
+          // If any proxy setting were passed then include the http proxy agent.
+          const requestProxy =
+            process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
+          if (requestProxy !== "undefined") {
+            args = args.concat(`--proxy ${requestProxy}`);
+          }
+          // I know I can push it, but I'll just
+          // keep concatenating for consistency
+          // global must preceed add in yarn; npm doesn't care
+          args = args.concat(globalFlag);
+          args = args.concat(subcommand);
+          // See issue #33 - issue with "-0"
+          function fixPackageName(packageName) {
+            if (packageName.substr(-2) === "-0") {
+              // Remove -0
+              return packageName.substr(0, packageName.length - 2);
+            }
+            return packageName;
+          }
+          // If we have spaces in our args spawn()
+          // cries foul so we'll split the packagesString
+          // into an array of individual packages
+          args = args.concat(packagesString.split(" ").map(fixPackageName));
+          // If devFlag is empty, then we'd be adding an empty arg
+          // That causes the command to fail
+          if (devFlag !== "") {
+            args = args.concat(devFlag);
+          }
+          // If we're using NPM, and there's no dev flag,
+          // and it's not a silent install and it's not a global install
+          // make sure to save deps in package.json under "dependencies"
+          if (
+            devFlag === "" &&
+            packageManager === C.npm &&
+            !silent &&
+            !global
+          ) {
+            args = args.concat("--save");
+          }
+          // If we are using NPM, and there's no dev flag,
+          // and it IS a silent install,
+          // explicitly pass the --no-save flag
+          // (NPM v5+ defaults to using --save)
+          if (devFlag === "" && packageManager === C.npm && silent) {
+            args = args.concat("--no-save");
+          }
+
+          // Pass extra args through
+          if (extraArgs !== "") {
+            args = args.concat(extraArgs);
+          }
+
+          // Remove empty args
+          // There's a bug with Yarn 1.0 in which an empty arg
+          // causes the install process to fail with a "malformed
+          // response from the registry" error
+          args = args.filter(a => a !== "");
+
+          //  Show user the command that's running
+          const commandString = `${packageManager} ${args.join(" ")}\n`;
+          if (dryRun) {
+            console.log(
+              `This command would have been run to install ${packageName}@${version}:`
+            );
+            console.log(commandString);
+          } else {
+            console.log(`Installing peerdeps for ${packageName}@${version}.`);
+            console.log(commandString);
+            spawnInstall(packageManager + extra, args)
+              .then(() => cb(null))
+              .catch(err => cb(err));
+          }
+        })
+    )
+    .catch(err => cb(err));
 }
 
 // Export for testing
-export { encodePackageName, getPackageData };
+export { encodePackageName, getPackageData, readPackageFile };
 
 export default installPeerDeps;
