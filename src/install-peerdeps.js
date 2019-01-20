@@ -326,6 +326,6 @@ function installPeerDeps(
 }
 
 // Export for testing
-export { encodePackageName, getPackageData };
+export { encodePackageName, getPackageData, readPackageFile };
 
 export default installPeerDeps;
