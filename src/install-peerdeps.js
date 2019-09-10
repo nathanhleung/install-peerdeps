@@ -212,7 +212,11 @@ function installPeerDeps(
       const requestProxy =
         process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
       if (requestProxy !== "undefined") {
-        args = args.concat(`--proxy ${requestProxy}`);
+        args = args.concat(["--proxy", String(requestProxy)]);
+      }
+      // If any registry were passed then include it
+      if (registry) {
+        args = args.concat(["--registry", String(registry)]);
       }
       // I know I can push it, but I'll just
       // keep concatenating for consistency
