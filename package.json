@@ -6,7 +6,7 @@
   "scripts": {
     "tape": "tape --require=babel-polyfill",
     "pretests-only": "npm run build:test",
-    "tests-only": "npm run tape test/*.test.js",
+    "tests-only": "npm run tape test/*.test.js | tap-spec",
     "lint": "eslint src/ --fix",
     "clean": "rimraf lib",
     "prebuild": "npm run clean",
@@ -65,6 +65,7 @@
     "jest": "^21.2.1",
     "prettier": "^1.8.1",
     "rimraf": "^2.6.2",
+    "tap-spec": "^5.0.0",
     "tape": "^4.9.1"
   }
 }
