@@ -37,6 +37,7 @@ function printPackageFormatError() {
 program
   .version(version)
   .description("Installs the specified package along with correct peerDeps.")
+  .option("-D, --dev")
   .option("-d, --dev", "Install the package as a devDependency")
   .option("-g, --global", "Install the package globally")
   .option("-o, --only-peers", "Install only peerDependencies of the package")
