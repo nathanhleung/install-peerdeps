@@ -90,6 +90,20 @@ test("only installs peerDependencies when `--only-peers` is specified", t => {
   );
 });
 
+test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", t => {
+  const flags = ["-D", "-d", "--dev"];
+  Promise.all(
+    flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
+  )
+    .then(commands => {
+      commands.forEach((cmd, i) =>
+        t.equal(/\s--save-dev$/.test(cmd), true, `flag: \`${flags[i]}\``)
+      );
+      t.end();
+    })
+    .catch(t.fail);
+});
+
 test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--global", "-Y"]).then(
     command => {
