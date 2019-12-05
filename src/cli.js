@@ -43,6 +43,7 @@ program
   .option("-o, --only-peers", "Install only peerDependencies of the package")
   .option("-S, --silent", "If using npm, don't save in package.json")
   .option("-Y, --yarn", "Install with Yarn")
+  .option("-P, --pnpm", "Install with pnpm")
   .option(
     "-r, --registry <uri>",
     "Install from custom registry (defaults to NPM registry)"
@@ -104,9 +105,17 @@ if (!packageName) {
 
 // Default package manager is npm
 let packageManager = C.npm;
-// If the yarn option was specified, use yarn
+if (program.yarn && program.pnpm) {
+  console.log(
+    `${C.errorText} Option --yarn and --pnpm cannot be used concurrently.`
+  );
+  process.exit(9);
+}
 if (program.yarn) {
   packageManager = C.yarn;
+}
+if (program.pnpm) {
+  packageManager = C.pnpm;
 }
 
 // Yarn does not allow silent install of dependencies

@@ -265,14 +265,24 @@ function installPeerDeps(
       // If we're using NPM, and there's no dev flag,
       // and it's not a silent install and it's not a global install
       // make sure to save deps in package.json under "dependencies"
-      if (devFlag === "" && packageManager === C.npm && !silent && !global) {
+      if (
+        devFlag === "" &&
+        // npm and pnpm are interchangeable
+        [C.npm, C.pnpm].includes(packageManager) &&
+        !silent &&
+        !global
+      ) {
         args = args.concat("--save");
       }
       // If we are using NPM, and there's no dev flag,
       // and it IS a silent install,
       // explicitly pass the --no-save flag
       // (NPM v5+ defaults to using --save)
-      if (devFlag === "" && packageManager === C.npm && silent) {
+      if (
+        devFlag === "" &&
+        [C.npm, C.pnpm].includes(packageManager) &&
+        silent
+      ) {
         args = args.concat("--no-save");
       }
 

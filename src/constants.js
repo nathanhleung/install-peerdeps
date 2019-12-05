@@ -5,6 +5,7 @@ import clc from "cli-color";
 // we mispell one of these
 export const npm = "npm";
 export const yarn = "yarn";
+export const pnpm = "pnpm";
 
 // Create prefixes for error/success events
 export const errorText = clc.red.bold("ERR");
