@@ -8,14 +8,15 @@ import test from "tape";
  * @param {string[]} extraArgs - arguments to be passed to the CLI
  * @returns {ChildProcess} - an EventEmitter that represents the spawned child process
  */
-function spawnCli(extraArgs, cwd = "sandbox") {
-  return spawn(
-    "node",
-    ["--require", "babel-register", path.join(__dirname, "cli.js")].concat(
-      extraArgs
-    ),
-    { cwd: path.join(__dirname, "..", "fixtures", cwd) }
-  );
+function spawnCli(extraArgs = [], cwd = "sandbox") {
+  const args = [
+    "--require",
+    "babel-register",
+    path.join(__dirname, "cli.js")
+  ].concat(extraArgs);
+  return spawn("node", args, {
+    cwd: path.join(__dirname, "..", "fixtures", cwd)
+  });
 }
 
 /**
@@ -83,7 +84,7 @@ test("only installs peerDependencies when `--only-peers` is specified", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
     command => {
       const cmd = command.toString();
-      t.equal(/\beslint-config-airbnb\b/.test(cmd), false);
+      t.equal(/\beslint-config-airbnb\b/.test(cmd), false, cmd);
       t.end();
     },
     t.fail
@@ -94,7 +95,7 @@ test("places `global` as first arg following `yarn` when using yarn and `--globa
   getCliInstallCommand(["eslint-config-airbnb", "--global", "-Y"]).then(
     command => {
       const cmd = command.toString();
-      t.equal(/\byarn global\b/.test(cmd), true);
+      t.equal(/\byarn global\b/.test(cmd), true, cmd);
       t.end();
     },
     t.fail
@@ -104,7 +105,7 @@ test("places `global` as first arg following `yarn` when using yarn and `--globa
 test("adds explicit `--global` flag when using `--global` with NPM", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
     const cmd = command.toString();
-    t.equal(/\bnpm\s--global\b/.test(cmd), true);
+    t.equal(/\bnpm\s--global\b/.test(cmd), true, cmd);
     t.end();
   }, t.fail);
 });
@@ -112,7 +113,7 @@ test("adds explicit `--global` flag when using `--global` with NPM", t => {
 test("does not add `--save` when using `--global` with NPM", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
     const cmd = command.toString();
-    t.equal(/\s--save\b/.test(cmd), false);
+    t.equal(/\s--save\b/.test(cmd), false, cmd);
     t.end();
   }, t.fail);
 });
@@ -120,7 +121,7 @@ test("does not add `--save` when using `--global` with NPM", t => {
 test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--silent"]).then(command => {
     const cmd = command.toString();
-    t.equal(/\s--no-save\b/.test(cmd), true);
+    t.equal(/\s--no-save\b/.test(cmd), true, cmd);
     t.end();
   }, t.fail);
 });

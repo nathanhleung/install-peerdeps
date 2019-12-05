@@ -102,7 +102,7 @@ function spawnInstall(command, args) {
 /**
  * Gets the contents of the package.json for a package at a specific version
  * @param {Object} requestInfo - information needed to make the request for the data
- * @param {string} requestInfo.encodedPackageName - the urlencoded name of the package
+ * @param {string} requestInfo.packageName - the name of the package
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
  * @param {Boolean} onlyPeers - true if only the peers have been requested to be installed. In this case, check for the package to already have been installed.
  * @param {string} version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
@@ -137,12 +137,6 @@ function getPackageJson(
       versionToInstall = data["dist-tags"][version];
     }
 
-    if (typeof peerDepsVersionMap === "undefined") {
-      throw new Error(
-        "The package you are trying to install has no peer " +
-          "dependencies. Use yarn or npm to install it manually."
-      );
-    }
     return data.versions[versionToInstall];
   });
 }
@@ -184,6 +178,12 @@ function installPeerDeps(
     .then(data => {
       // Get peer dependencies for max satisfying version
       const peerDepsVersionMap = data.peerDependencies;
+      if (typeof peerDepsVersionMap === "undefined") {
+        throw new Error(
+          "The package you are trying to install has no peer " +
+            "dependencies. Use yarn or npm to install it manually."
+        );
+      }
 
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself,
