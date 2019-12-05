@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
 import "babel-polyfill";
 
+import fs from "fs";
 import request from "request-promise-native";
 import HttpsProxyAgent from "https-proxy-agent";
 import { spawn } from "child_process";
@@ -31,14 +32,14 @@ function encodePackageName(packageName) {
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
-function getPackageData({ encodedPackageName, registry, auth, proxy }) {
+function getPackageData({ packageName, registry, auth, proxy }) {
   const requestHeaders = {};
   if (auth) {
     requestHeaders.Authorization = `Bearer ${auth}`;
   }
 
   const options = {
-    uri: `${registry}/${encodedPackageName}`,
+    uri: `${registry}/${encodePackageName(packageName)}`,
     resolveWithFullResponse: true,
     // When simple is true, all non-200 status codes throw an
     // error. However, we want to handle status code errors in
@@ -99,6 +100,54 @@ function spawnInstall(command, args) {
 }
 
 /**
+ * Gets the contents of the package.json for a package at a specific version
+ * @param {Object} requestInfo - information needed to make the request for the data
+ * @param {string} requestInfo.encodedPackageName - the urlencoded name of the package
+ * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
+ * @param {Boolean} onlyPeers - true if only the peers have been requested to be installed. In this case, check for the package to already have been installed.
+ * @param {string} version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
+ * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
+ */
+function getPackageJson(
+  { packageName, registry, auth, proxy },
+  onlyPeers,
+  version
+) {
+  if (onlyPeers) {
+    if (fs.existsSync(`node_modules/${packageName}`)) {
+      return Promise.resolve(
+        JSON.parse(
+          fs.readFileSync(`node_modules/${packageName}/package.json`, "utf8")
+        )
+      );
+    }
+  }
+  return getPackageData({ packageName, registry, auth, proxy }).then(data => {
+    const versions = Object.keys(data.versions);
+    // Get max satisfying semver version
+    let versionToInstall = maxSatisfying(versions, version);
+    // If we didn't find a version, maybe it's a tag
+    if (versionToInstall === null) {
+      const tags = Object.keys(data["dist-tags"]);
+      //  If it's not a valid tag, throw an error
+      if (tags.indexOf(version) === -1) {
+        throw new Error("That version or tag does not exist.");
+      }
+      // If the tag is valid, then find the version corresponding to the tag
+      versionToInstall = data["dist-tags"][version];
+    }
+
+    if (typeof peerDepsVersionMap === "undefined") {
+      throw new Error(
+        "The package you are trying to install has no peer " +
+          "dependencies. Use yarn or npm to install it manually."
+      );
+    }
+    return data.versions[versionToInstall];
+  });
+}
+
+/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -129,44 +178,17 @@ function installPeerDeps(
   },
   cb
 ) {
-  const encodedPackageName = encodePackageName(packageName);
-  getPackageData({ encodedPackageName, registry, auth, proxy })
+  getPackageJson({ packageName, registry, auth, proxy }, onlyPeers, version)
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {
-      const versions = Object.keys(data.versions);
-      // Get max satisfying semver version
-      let versionToInstall = maxSatisfying(versions, version);
-      // If we didn't find a version, maybe it's a tag
-      if (versionToInstall === null) {
-        const tags = Object.keys(data["dist-tags"]);
-        //  If it's not a valid tag, throw an error
-        if (tags.indexOf(version) === -1) {
-          return cb(new Error("That version or tag does not exist."));
-        }
-        // If the tag is valid, then find the version corresponding to the tag
-        versionToInstall = data["dist-tags"][version];
-      }
-
       // Get peer dependencies for max satisfying version
-      const peerDepsVersionMap =
-        data.versions[versionToInstall].peerDependencies;
-
-      if (typeof peerDepsVersionMap === "undefined") {
-        cb(
-          new Error(
-            "The package you are trying to install has no peer " +
-              "dependencies. Use yarn or npm to install it manually."
-          )
-        );
-      }
+      const peerDepsVersionMap = data.peerDependencies;
 
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself,
       // only its peers.
-      let packagesString = onlyPeers
-        ? ""
-        : `${packageName}@${versionToInstall}`;
+      let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
       Object.keys(peerDepsVersionMap).forEach(depName => {
         // Get the peer dependency version
         const peerDepVersion = peerDepsVersionMap[depName];
