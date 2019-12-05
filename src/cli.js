@@ -23,19 +23,13 @@ const { name, version } = pkg;
  */
 function printPackageFormatError() {
   console.log(
-    `${
-      C.errorText
-    } Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``
+    `${C.errorText} Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``
   );
   console.log(
-    `${
-      C.errorText
-    } At this time you must provide the full semver version of the package.`
+    `${C.errorText} At this time you must provide the full semver version of the package.`
   );
   console.log(
-    `${
-      C.errorText
-    } Alternatively, omit it to automatically install the latest version of the package.`
+    `${C.errorText} Alternatively, omit it to automatically install the latest version of the package.`
   );
 }
 
@@ -79,18 +73,16 @@ if (program.args.length === 0) {
   console.log(
     `${C.errorText} Please specify a package to install with peerDeps.`
   );
-  program.help();
   // An exit code of "9" indicates an invalid argument
   // See https://nodejs.org/api/process.html#process_exit_codes
-  process.exit(9);
+  process.exitCode = 9;
+  program.help();
 }
 
 // Make sure we're installing no more than one package
 if (program.args.length > 1) {
   console.log(
-    `${
-      C.errorText
-    } Too many arguments. Please specify ONE package at a time to install with peerDeps. Alternatively, pass extra arguments with --extra-args "<extra_args>".`
+    `${C.errorText} Too many arguments. Please specify ONE package at a time to install with peerDeps. Alternatively, pass extra arguments with --extra-args "<extra_args>".`
   );
   // An exit code of "9" indicates an invalid argument
   // See https://nodejs.org/api/process.html#process_exit_codes
@@ -214,9 +206,7 @@ function installCb(err) {
   let successMessage = `${C.successText} ${packageName}
   and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
-    successMessage = `${
-      C.successText
-    } The peerDeps of ${packageName} were installed successfully.`;
+    successMessage = `${C.successText} The peerDeps of ${packageName} were installed successfully.`;
   }
   console.log(successMessage);
   process.exit(0);
