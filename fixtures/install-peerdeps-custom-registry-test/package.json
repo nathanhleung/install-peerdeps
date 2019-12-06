@@ -1,0 +1,15 @@
+{
+  "name": "@nathanhleung/install-peerdeps-custom-registry-test",
+  "version": "1.0.1",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/nathanhleung/install-peerdeps.git",
+    "directory": "fixtures/custom-registry/install-peerdeps-custom-registry-test"
+  },
+  "peerDependencies": {
+    "lodash": "4.x"
+  },
+  "author": "nathanhleung",
+  "license": "MIT"
+}
