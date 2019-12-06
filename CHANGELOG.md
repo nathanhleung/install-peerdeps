@@ -1,3 +1,8 @@
+# 2.0.0
+
+- Bump dependencies
+- Drop support for Node.js below version 8
+
 # 1.11.0
 
 - Resolved #47 - support pnpm

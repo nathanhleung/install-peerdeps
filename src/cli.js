@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import "babel-polyfill";
+import "@babel/polyfill";
 
 import { Command } from "commander";
 import { confirm } from "promptly";
@@ -189,12 +189,7 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
         packageManager = C.yarn;
       }
       // Now install, but with the new packageManager
-      installPeerDeps(
-        Object.assign({}, options, {
-          packageManager
-        }),
-        installCb
-      );
+      installPeerDeps({ ...options, packageManager }, installCb);
     }
   );
 } else {

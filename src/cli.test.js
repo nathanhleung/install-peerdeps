@@ -22,7 +22,7 @@ function spawnCli(extraArgs, cwd = "sandbox") {
   const cli = spawn(
     "node",
     [
-      ...["--require", "babel-register", path.join(__dirname, "cli.js")],
+      ...["--require", "@babel/register", path.join(__dirname, "cli.js")],
       ...extraArgs
     ],
     { cwd: fullCwd }
@@ -102,64 +102,85 @@ test("errors when the package name argument is formatted incorrectly", t => {
   });
 });
 
-test("only installs peerDependencies when `--only-peers` is specified", t => {
-  getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
-    command => {
-      const cmd = command.toString();
-      t.equal(/ eslint-config-airbnb /.test(cmd), false);
-      t.end();
-    },
-    t.fail
-  );
+test("only installs peerDependencies when `--only-peers` is specified", async t => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand([
+      "eslint-config-airbnb",
+      "--only-peers"
+    ]);
+    t.equal(/ eslint-config-airbnb /.test(command), false);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
-test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", t => {
+test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", async t => {
   const flags = ["-D", "-d", "--dev"];
-  Promise.all(
-    flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
-  )
-    .then(commands => {
-      commands.forEach((cmd, i) =>
-        t.equal(/ --save-dev /.test(cmd), true, `flag: \`${flags[i]}\``)
-      );
-      t.end();
-    })
-    .catch(t.fail);
+  t.plan(flags.length);
+  try {
+    const commands = await Promise.all(
+      flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
+    );
+    commands.forEach((command, i) =>
+      t.equal(/ --save-dev /.test(command), true, `flag: \`${flags[i]}\``)
+    );
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
-test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", t => {
-  getCliInstallCommand(["eslint-config-airbnb", "--global", "-Y"]).then(
-    command => {
-      const cmd = command.toString();
-      t.equal(/^yarn global/.test(cmd), true);
-      t.end();
-    },
-    t.fail
-  );
+test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", async t => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand([
+      "eslint-config-airbnb",
+      "--global",
+      "-Y"
+    ]);
+    t.equal(/^yarn global/.test(command), true);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
-test("adds explicit `--global` flag when using `--global` with NPM", t => {
-  getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
-    const cmd = command.toString();
-    t.equal(/\bnpm\s--global\b/.test(cmd), true);
-    t.end();
-  }, t.fail);
+test("adds explicit `--global` flag when using `--global` with NPM", async t => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand([
+      "eslint-config-airbnb",
+      "--global"
+    ]);
+    t.equal(/\bnpm\s--global\b/.test(command), true);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
-test("does not add `--save` when using `--global` with NPM", t => {
-  getCliInstallCommand(["eslint-config-airbnb", "--global"]).then(command => {
-    const cmd = command.toString();
-    t.equal(/\s--save\b/.test(cmd), false);
-    t.end();
-  }, t.fail);
+test("does not add `--save` when using `--global` with NPM", async t => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand([
+      "eslint-config-airbnb",
+      "--global"
+    ]);
+    t.equal(/\s--save\b/.test(command), false);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
-test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
-  getCliInstallCommand(["eslint-config-airbnb", "--silent"]).then(command => {
-    const cmd = command.toString();
-    t.equal(/\s--no-save\b/.test(cmd), true);
-    t.end();
-  }, t.fail);
+test("adds an explicit `--no-save` when using `--silent` with NPM", async t => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand([
+      "eslint-config-airbnb",
+      "--silent"
+    ]);
+    t.equal(/\s--no-save\b/.test(command), true);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
 test("installs with pnpm successfully", t => {
@@ -171,10 +192,17 @@ test("installs with pnpm successfully", t => {
     if (code !== 0) {
       t.fail(`CLI exited with error code ${code}`);
     }
-    const hasPnpmLockYaml = fs.existsSync(
-      path.resolve(__dirname, "..", "fixtures", "pnpm", "pnpm-lock.yaml")
+    const pnpmLockYamlPath = path.resolve(
+      __dirname,
+      "..",
+      "fixtures",
+      "pnpm",
+      "pnpm-lock.yaml"
     );
+    const hasPnpmLockYaml = fs.existsSync(pnpmLockYamlPath);
     t.equal(hasPnpmLockYaml, true);
+    // Delete pnpm-lock.yaml file
+    fs.unlinkSync(pnpmLockYamlPath);
     t.end();
   });
 });

@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
-import "babel-polyfill";
+import "@babel/polyfill";
 
 import fs from "fs";
 import request from "request-promise-native";
