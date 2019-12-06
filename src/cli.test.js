@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
+import fs from "fs";
 import path from "path";
 import test from "tape";
-// import fs from "fs";
 
 /**
  * Spawns the CLI with the provided arguments
@@ -9,13 +9,36 @@ import test from "tape";
  * @returns {ChildProcess} - an EventEmitter that represents the spawned child process
  */
 function spawnCli(extraArgs, cwd = "sandbox") {
-  return spawn(
+  const fullCwd = path.join(__dirname, "..", "fixtures", cwd);
+
+  // Clean up sandbox before and after every run
+  if (cwd === "sandbox") {
+    fs.copyFileSync(
+      path.join(fullCwd, "package-clean.json"),
+      path.join(fullCwd, "package.json")
+    );
+  }
+
+  const cli = spawn(
     "node",
-    ["--require", "babel-register", path.join(__dirname, "cli.js")].concat(
-      extraArgs
-    ),
-    { cwd: path.join(__dirname, "..", "fixtures", cwd) }
+    [
+      ...["--require", "babel-register", path.join(__dirname, "cli.js")],
+      ...extraArgs
+    ],
+    { cwd: fullCwd }
   );
+
+  // Clean up sandbox before and after every run
+  cli.on("exit", () => {
+    if (cwd === "sandbox") {
+      fs.copyFileSync(
+        path.join(fullCwd, "package-clean.json"),
+        path.join(fullCwd, "package.json")
+      );
+    }
+  });
+
+  return cli;
 }
 
 /**
@@ -29,7 +52,7 @@ async function getCliInstallCommand(extraArgs) {
   return new Promise((resolve, reject) => {
     // Always do dry run, so the command is the last
     // non-whitespace line written to stdout
-    const cli = spawnCli(extraArgs.concat("--dry-run"));
+    const cli = spawnCli([...extraArgs, "--dry-run"]);
     const fullstdout = [];
     cli.stdout.on("data", data => {
       // not guaranteed to be line-by-line in fact these can be Buffers
@@ -64,7 +87,7 @@ test("errors when more than one package is provided", t => {
 });
 
 test("errors when no arguments are provided", t => {
-  const cli = spawnCli();
+  const cli = spawnCli([]);
   cli.on("exit", code => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
@@ -72,7 +95,7 @@ test("errors when no arguments are provided", t => {
 });
 
 test("errors when the package name argument is formatted incorrectly", t => {
-  const cli = spawnCli("heyhe#@&*()");
+  const cli = spawnCli(["heyhe#@&*()"]);
   cli.on("exit", code => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
@@ -83,7 +106,7 @@ test("only installs peerDependencies when `--only-peers` is specified", t => {
   getCliInstallCommand(["eslint-config-airbnb", "--only-peers"]).then(
     command => {
       const cmd = command.toString();
-      t.equal(/\beslint-config-airbnb\b/.test(cmd), false);
+      t.equal(/ eslint-config-airbnb /.test(cmd), false);
       t.end();
     },
     t.fail
@@ -97,7 +120,7 @@ test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", t =>
   )
     .then(commands => {
       commands.forEach((cmd, i) =>
-        t.equal(/\s--save-dev$/.test(cmd), true, `flag: \`${flags[i]}\``)
+        t.equal(/ --save-dev /.test(cmd), true, `flag: \`${flags[i]}\``)
       );
       t.end();
     })
@@ -108,7 +131,7 @@ test("places `global` as first arg following `yarn` when using yarn and `--globa
   getCliInstallCommand(["eslint-config-airbnb", "--global", "-Y"]).then(
     command => {
       const cmd = command.toString();
-      t.equal(/\byarn global\b/.test(cmd), true);
+      t.equal(/^yarn global/.test(cmd), true);
       t.end();
     },
     t.fail
@@ -139,13 +162,31 @@ test("adds an explicit `--no-save` when using `--silent` with NPM", t => {
   }, t.fail);
 });
 
-test("installs packages correctly even if package name ends with '-0'", t => {
-  const cli = spawnCli(["enzyme-adapter-react-16@1.1.1"]);
+test("installs with pnpm successfully", t => {
+  const cli = spawnCli(["eslint-config-airbnb", "--pnpm"], "pnpm");
+  cli.on("data", data => {
+    t.comment(data);
+  });
   cli.on("exit", code => {
-    t.equal(code, 0, `errored, exit code was ${code}.`);
+    if (code !== 0) {
+      t.fail(`CLI exited with error code ${code}`);
+    }
+    const hasPnpmLockYaml = fs.existsSync(
+      path.resolve(__dirname, "..", "fixtures", "pnpm", "pnpm-lock.yaml")
+    );
+    t.equal(hasPnpmLockYaml, true);
     t.end();
   });
 });
+
+// See https://github.com/nathanhleung/install-peerdeps/issues/33
+// test("installs packages correctly even if package name ends with '-0'", t => {
+//   const cli = spawnCli(["enzyme-adapter-react-16@1.1.1"]);
+//   cli.on("exit", code => {
+//     t.equal(code, 0, `errored, exit code was ${code}.`);
+//     t.end();
+//   });
+// });
 
 // Work on this test later
 /*

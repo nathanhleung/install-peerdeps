@@ -37,7 +37,7 @@ function printPackageFormatError() {
 program
   .version(version)
   .description("Installs the specified package along with correct peerDeps.")
-  .option("-D, --dev")
+  .option("-D", "Install the package as a devDependency (alias for `-d`)")
   .option("-d, --dev", "Install the package as a devDependency")
   .option("-g, --global", "Install the package globally")
   .option("-o, --only-peers", "Install only peerDependencies of the package")
@@ -124,10 +124,11 @@ if (program.yarn && program.silent) {
   process.exit(9);
 }
 
+const devMode = program.dev || program.D;
 // Dev option can't be used with silent,
 // since --dev means it should be saved
 // as a devDependency
-if (program.dev && program.silent) {
+if (devMode && program.silent) {
   console.log(`${C.errorText} Option --silent cannot be used with --dev.`);
   process.exit(9);
 }
@@ -135,7 +136,7 @@ if (program.dev && program.silent) {
 // Dev option can't be used with global,
 // since --dev means it should be saved
 // as a devDependency (locally)
-if (program.dev && program.silent) {
+if (devMode && program.silent) {
   console.log(`${C.errorText} Option --dev cannot be used with --global.`);
   process.exit(9);
 }
@@ -157,7 +158,7 @@ const options = {
   version: packageVersion || "latest",
   // If registry is undefined, default to the official NPM registry
   registry: program.registry || "https://registry.npmjs.com",
-  dev: program.dev,
+  dev: devMode,
   global: program.global,
   onlyPeers: program.onlyPeers,
   silent: program.silent,

@@ -28,7 +28,7 @@ function encodePackageName(packageName) {
 /**
  * Gets metadata about the package from the provided registry
  * @param {Object} requestInfo - information needed to make the request for the data
- * @param {string} requestInfo.encodedPackageName - the urlencoded name of the package
+ * @param {string} requestInfo.packageName - the name of the package
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
@@ -62,10 +62,13 @@ function getPackageData({ packageName, registry, auth, proxy }) {
         "That package doesn't exist. Did you mean to specify a custom registry?"
       );
     }
+
     // If the statusCode not 200 or 404, assume that something must
     // have gone wrong with the connection
     if (statusCode !== 200) {
-      throw new Error("There was a problem connecting to the registry.");
+      throw new Error(
+        `There was a problem connecting to the registry: status code ${statusCode}`
+      );
     }
     const { body } = response;
     const parsedData = JSON.parse(body);
@@ -236,10 +239,6 @@ function installPeerDeps(
       if (requestProxy !== "undefined") {
         args = args.concat(["--proxy", String(requestProxy)]);
       }
-      // If any registry were passed then include it
-      if (registry) {
-        args = args.concat(["--registry", String(registry)]);
-      }
       // I know I can push it, but I'll just
       // keep concatenating for consistency
       // global must preceed add in yarn; npm doesn't care
@@ -265,13 +264,7 @@ function installPeerDeps(
       // If we're using NPM, and there's no dev flag,
       // and it's not a silent install and it's not a global install
       // make sure to save deps in package.json under "dependencies"
-      if (
-        devFlag === "" &&
-        // npm and pnpm are interchangeable
-        [C.npm, C.pnpm].includes(packageManager) &&
-        !silent &&
-        !global
-      ) {
+      if (devFlag === "" && packageManager === C.npm && !silent && !global) {
         args = args.concat("--save");
       }
       // If we are using NPM, and there's no dev flag,
@@ -280,10 +273,17 @@ function installPeerDeps(
       // (NPM v5+ defaults to using --save)
       if (
         devFlag === "" &&
+        // npm and pnpm are generally interchangeable,
+        // but pnpm doesn't have a --save option (see above)
         [C.npm, C.pnpm].includes(packageManager) &&
         silent
       ) {
         args = args.concat("--no-save");
+      }
+
+      // If any registry were passed then include it
+      if (registry) {
+        args = args.concat(["--registry", String(registry)]);
       }
 
       // Pass extra args through
