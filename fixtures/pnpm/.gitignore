@@ -1,0 +1,2 @@
+# Ignore pnpm-lock.yaml so we know it's created by the test
+pnpm-lock.yaml
