@@ -1,3 +1,8 @@
+# 2.0.1
+
+- Bump [commander](https://www.npmjs.com/package/commander) version
+- Drop support for Node.js below version 8
+
 # 2.0.0
 
 - Bump dependencies
