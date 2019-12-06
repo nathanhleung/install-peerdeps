@@ -1,3 +1,10 @@
+# 1.11.0
+
+- Resolved #47 - support pnpm
+- Merge #51 by @jaredly - allow installation from linked modules/GitHub, resolving #44
+- Merge #50 by @vladimyr - support both `-D` & `-d` flags for dev mode
+- Merge #49 by @AndreGeng - make sure registry option is passed through, resolving #48
+
 # 1.10.2
 
 - Fixed #43 - check to see if `--extra-args` is undefined before appending to cli command
