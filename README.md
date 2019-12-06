@@ -54,13 +54,14 @@ Usage: install-peerdeps <package>[@<version>], default version is 'latest'
 Installs the specified package along with correct peerDeps.
 
 Options:
-
   -V, --version                    output the version number
+  -D                               Install the package as a devDependency (alias for `-d`)
   -d, --dev                        Install the package as a devDependency
   -g, --global                     Install the package globally
   -o, --only-peers                 Install only peerDependencies of the package
   -S, --silent                     If using npm, don't save in package.json
   -Y, --yarn                       Install with Yarn
+  -P, --pnpm                       Install with pnpm
   -r, --registry <uri>             Install from custom registry (defaults to NPM registry)
   --dry-run                        Do not install packages, but show the install command that will be run
   -a, --auth <token>               Provide an NPM authToken for private packages.
