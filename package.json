@@ -44,7 +44,7 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "cli-color": "^1.2.0",
+    "cli-color": "^2.0.0",
     "commander": "^2.11.0",
     "https-proxy-agent": "^2.2.1",
     "promptly": "^2.1.0",
