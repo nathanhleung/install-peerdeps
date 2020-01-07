@@ -173,25 +173,28 @@ const options = {
 // Disabled this rule so we can hoist the callback
 /* eslint-disable no-use-before-define */
 
+
 // Check if the user has Yarn but didn't specify the Yarn option
 // However, don't show prompt if user wants to install silently
 if (hasYarn() && packageManager !== C.yarn && !program.silent) {
   // If they do, ask if they want to use Yarn
   confirm(
-    "It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)",
-    (err, value) => {
-      if (err) {
-        console.log(`${C.errorText} ${err.message}`);
-        process.exit(1);
-      }
+    "It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)"
+  )
+    .then(value => {
       // Value is true or false; if true, they want to use Yarn
       if (value) {
         packageManager = C.yarn;
       }
       // Now install, but with the new packageManager
       installPeerDeps({ ...options, packageManager }, installCb);
-    }
-  );
+    })
+    .catch(err => {
+      if (err) {
+        console.log(`${C.errorText} ${err.message}`);
+        process.exit(1);
+      }
+    });
 } else {
   // If they don't have Yarn or they've already
   // opted to use Yarn, go ahead and install
