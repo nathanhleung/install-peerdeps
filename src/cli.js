@@ -173,7 +173,6 @@ const options = {
 // Disabled this rule so we can hoist the callback
 /* eslint-disable no-use-before-define */
 
-
 // Check if the user has Yarn but didn't specify the Yarn option
 // However, don't show prompt if user wants to install silently
 if (hasYarn() && packageManager !== C.yarn && !program.silent) {
