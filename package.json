@@ -46,7 +46,7 @@
     "@babel/polyfill": "^7.7.0",
     "cli-color": "^2.0.0",
     "commander": "^4.0.1",
-    "https-proxy-agent": "^4.0.0",
+    "https-proxy-agent": "^5.0.0",
     "promptly": "^3.0.3",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
