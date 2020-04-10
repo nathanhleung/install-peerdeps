@@ -1,3 +1,7 @@
+# 2.0.2
+
+- Merge #66 by @marlonicus - fix installation not starting after package manager confirmation, resolving #70
+
 # 2.0.1
 
 - Bump [commander](https://www.npmjs.com/package/commander) version
