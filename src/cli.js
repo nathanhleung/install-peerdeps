@@ -49,20 +49,8 @@ program
     "Use local node_modules instead of a remote registry to get the list of peerDependencies"
   )
   .option(
-    "-r, --registry <uri>",
-    "Install from custom registry (defaults to NPM registry)"
-  )
-  .option(
     "--dry-run",
     "Do not install packages, but show the install command that will be run"
-  )
-  .option(
-    "-a, --auth <token>",
-    "Provide an NPM authToken for private packages."
-  )
-  .option(
-    "-p, --proxy <http_proxy>",
-    "Enable http proxy to connect to the registry"
   )
   .option(
     '-x, --extra-args "<extra_args>"',
@@ -145,15 +133,6 @@ if (devMode && program.silent) {
   process.exit(9);
 }
 
-if (program.registry) {
-  const { registry } = program;
-  // Check if last character in registry is a trailing slash
-  if (registry.substr(-1) === "/") {
-    // If the last character is a trailing slash, remove it
-    program.registry = registry.slice(0, -1);
-  }
-}
-
 // Define options object to pass to
 // the installPeerDeps function
 const options = {
@@ -161,9 +140,6 @@ const options = {
   // If packageVersion is undefined, default to "latest"
   version: packageVersion || "latest",
   noRegistry: program.noRegistry,
-  // If registry is undefined, default to the official NPM registry
-  // See: https://docs.npmjs.com/using-npm/registry.html
-  registry: program.registry || "https://registry.npmjs.org",
   dev: devMode,
   global: program.global,
   onlyPeers: program.onlyPeers,
@@ -172,8 +148,7 @@ const options = {
   dryRun: program.dryRun,
   auth: program.auth,
   // Args after -- will be passed through
-  extraArgs: program.extraArgs || "",
-  proxy: program.proxy
+  extraArgs: program.extraArgs || ""
 };
 
 // Disabled this rule so we can hoist the callback

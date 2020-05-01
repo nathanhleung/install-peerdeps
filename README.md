@@ -63,10 +63,7 @@ Options:
   -Y, --yarn                       Install with Yarn
   -P, --pnpm                       Install with pnpm
   -n, --no-registry                Do not use a remote registry to find dependencies list
-  -r, --registry <uri>             Install from custom registry (defaults to NPM registry)
   --dry-run                        Do not install packages, but show the install command that will be run
-  -a, --auth <token>               Provide an NPM authToken for private packages.
-  -p, --proxy <http_proxy>         Enable http proxy to connect to the registry
   -x, --extra-args "<extra_args>"  Extra arguments to pass through to NPM or Yarn
   -h, --help                       output usage information
 ```
@@ -79,7 +76,7 @@ Only core Yarn and NPM arguments relating to package installation are officially
 
 Here's how you'd use `--extra-args` to pass a custom NPM config option (in this case, disabling `strict-ssl` when accessing a custom registry over HTTPS):
 
-`install-peerdeps <package> -p http://proxy:8080 --extra-args "--strict-ssl false"`
+`install-peerdeps <package> --extra-args "--strict-ssl false"`
 
 ## Examples
 
@@ -117,32 +114,6 @@ yarn add @angular/core rxjs@^5.0.1 zone.js@^0.7.2
 yarn add v0.18.1
 ...
 ```
-
-### Installing from a Custom Registry
-
-To install from a custom registry, use the `--registry` option:
-
-`install-peerdeps my-custom-package --registry https://registry.mycompany.com`.
-
-### Installing a Private Package
-
-To install a private npm package (either from npm or from a registry that uses an authorization header), use the auth option:
-
-`install-peerdeps my-private-package --auth your-npm-auth-token`
-
-### Proxies
-
-To use this tool with a proxy, set the `HTTPS_PROXY` environment variable (if you're using a custom registry and it is only accessible over HTTP, though, set the `HTTP_PROXY` environment variable).
-
-Under the hood, this package uses the `request` module to get package information from the registry and it spawns an NPM or Yarn child process for the actual installation.
-
-`request` respects the `HTTP_PROXY` and `HTTPS_PROXY` environment variables, and `spawn` passes environment variables to the child process, so if you have the `PROXY` environment variables correctly set, everything should work. Nonetheless, proxy support is a new addition to this tool (added in v1.4.0), so please leave an issue if you have any problems.
-
-`HTTPS_PROXY=https://proxy.mycompany.com/ install-peerdeps my-company-package`
-
-Alternatively, you may use the `--proxy` flag like so:
-
-`install-peerdeps my-company-package --proxy https://proxy.mycompany.com/`
 
 ## Contributing
 
