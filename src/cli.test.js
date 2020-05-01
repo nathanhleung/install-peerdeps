@@ -54,11 +54,19 @@ async function getCliInstallCommand(extraArgs) {
     // non-whitespace line written to stdout
     const cli = spawnCli([...extraArgs, "--dry-run"]);
     const fullstdout = [];
+    const fullstderr = [];
     cli.stdout.on("data", data => {
       // not guaranteed to be line-by-line in fact these can be Buffers
-      fullstdout.push(data);
+      fullstdout.push(data.toString());
     });
-    cli.on("close", () => {
+    cli.stderr.on("data", data => {
+      // not guaranteed to be line-by-line in fact these can be Buffers
+      fullstderr.push(data.toString());
+    });
+    cli.on("close", code => {
+      if (code !== 0) {
+        reject(new Error(`Unsuccessful exit code. ${fullstderr}`));
+      }
       // The command will be the last non-whitespace line written to
       // stdout by the cli during a dry run
 
