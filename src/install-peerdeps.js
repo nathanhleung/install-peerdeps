@@ -106,17 +106,20 @@ function spawnInstall(command, args) {
  * Gets the contents of the package.json for a package at a specific version
  * @param {Object} requestInfo - information needed to make the request for the data
  * @param {string} requestInfo.packageName - the name of the package
+ * @param {Boolean} requestInfo.noRegistry - Gets the package dependencies list from the local node_modules instead of remote registry
  * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
- * @param {Boolean} onlyPeers - true if only the peers have been requested to be installed. In this case, check for the package to already have been installed.
- * @param {string} version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
+ * @param {string} requestInfo.version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
-function getPackageJson(
-  { packageName, registry, auth, proxy },
-  onlyPeers,
+function getPackageJson({
+  packageName,
+  noRegistry,
+  registry,
+  auth,
+  proxy,
   version
-) {
-  if (onlyPeers) {
+}) {
+  if (noRegistry) {
     if (fs.existsSync(`node_modules/${packageName}`)) {
       return Promise.resolve(
         JSON.parse(
@@ -202,7 +205,7 @@ function installPeerDeps(
   },
   cb
 ) {
-  getPackageJson({ packageName, registry, auth, proxy }, onlyPeers, version)
+  getPackageJson({ packageName, noRegistry:onlyPeers, registry, auth, proxy, version })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {
