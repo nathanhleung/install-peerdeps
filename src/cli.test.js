@@ -69,7 +69,6 @@ async function getCliInstallCommand(extraArgs) {
       }
       // The command will be the last non-whitespace line written to
       // stdout by the cli during a dry run
-
       const lines = fullstdout
         .join("")
         .split(/\r?\n/g)

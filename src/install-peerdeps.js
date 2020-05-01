@@ -2,8 +2,6 @@
 import "@babel/polyfill";
 
 import fs from "fs";
-import request from "request-promise-native";
-import HttpsProxyAgent from "https-proxy-agent";
 import { spawn } from "child_process";
 import { valid, coerce, maxSatisfying } from "semver";
 import * as C from "./constants";
@@ -26,57 +24,6 @@ function encodePackageName(packageName) {
 }
 
 /**
- * Gets metadata about the package from the provided registry
- * @param {Object} requestInfo - information needed to make the request for the data
- * @param {string} requestInfo.packageName - the name of the package
- * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
- * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
- */
-function getPackageData({ packageName, registry, auth, proxy }) {
-  const requestHeaders = {};
-  if (auth) {
-    requestHeaders.Authorization = `Bearer ${auth}`;
-  }
-
-  const options = {
-    uri: `${registry}/${encodePackageName(packageName)}`,
-    resolveWithFullResponse: true,
-    // When simple is true, all non-200 status codes throw an
-    // error. However, we want to handle status code errors in
-    // the .then(), so we make simple false.
-    simple: false,
-    headers: requestHeaders
-  };
-
-  // If any proxy setting were passed then include the http proxy agent.
-  const requestProxy =
-    process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
-  if (requestProxy !== "undefined") {
-    options.agent = new HttpsProxyAgent(requestProxy);
-  }
-
-  return request(options).then(response => {
-    const { statusCode } = response;
-    if (statusCode === 404) {
-      throw new Error(
-        "That package doesn't exist. Did you mean to specify a custom registry?"
-      );
-    }
-
-    // If the statusCode not 200 or 404, assume that something must
-    // have gone wrong with the connection
-    if (statusCode !== 200) {
-      throw new Error(
-        `There was a problem connecting to the registry: status code ${statusCode}`
-      );
-    }
-    const { body } = response;
-    const parsedData = JSON.parse(body);
-    return parsedData;
-  });
-}
-
-/**
  * Spawns a command to the shell
  * @param {string} command - the command to spawn
  * @param {array} args - listg of arguments to pass to the command
@@ -86,22 +33,17 @@ const spawnCommand = (command, args) => {
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
-
     const cmdProcess = spawn(command, args, {
-      cwd: process.cwd(),
-      // Something to do with this, progress bar only shows if stdio is inherit
-      // https://github.com/yarnpkg/yarn/issues/2200
-      stdio: "inherit"
+      cwd: process.cwd()
     });
-
     cmdProcess.stdout.on("data", chunk => {
       stdout += chunk;
     });
     cmdProcess.stderr.on("data", chunk => {
       stderr += chunk;
     });
-
-    cmdProcess.on("error", reject).on("close", code => {
+    cmdProcess.on("error", reject);
+    cmdProcess.on("exit", code => {
       if (code === 0) {
         resolve(stdout);
       } else {
@@ -112,22 +54,57 @@ const spawnCommand = (command, args) => {
 };
 
 /**
+ * Parse a registry manifest to get the best matching version
+ * @param {Object} requestInfo - information needed to make the request for the data
+ * @param {string} requestInfo.data - the data from the remote registry
+ * @param {string} requestInfo.version - the version (or version tag) to try to find
+ * @returns {string} - The best matching version number
+ */
+function findPackageVersion({ data, version }) {
+  // Get the max satisfying semver version
+  const versionToInstall = maxSatisfying(data.versions, version);
+  if (versionToInstall) {
+    return versionToInstall;
+  }
+
+  // When no matching semver, try named tags, like "latest"
+  if (data["dist-tags"][version]) {
+    return data["dist-tags"][version];
+  }
+
+  // No match
+  throw new Error("That version or tag does not exist.");
+}
+
+/**
+ * Gets metadata about the package from the provided registry
+ * @param {Object} requestInfo - information needed to make the request for the data
+ * @param {string} requestInfo.packageName - the name of the package
+ * @param {string} requestInfo.packageManager - the package manager to use (Yarn or npm)
+ * @param {string} requestInfo.version - the version (or version tag) to attempt to install
+ * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
+ */
+function getPackageData({ packageName, packageManager, version }) {
+  const pkgString = version ? `${packageName}@${version}` : packageName;
+  const args = ["info", pkgString, "--json"];
+  return spawnCommand(packageManager, args).then(response => {
+    const parsed = JSON.parse(response);
+    // Yarn returns with an extra nested { data } that NPM doesn't
+    return parsed.data || parsed;
+  });
+}
+
+/**
  * Gets the contents of the package.json for a package at a specific version
  * @param {Object} requestInfo - information needed to make the request for the data
  * @param {string} requestInfo.packageName - the name of the package
  * @param {Boolean} requestInfo.noRegistry - Gets the package dependencies list from the local node_modules instead of remote registry
- * @param {string} requestInfo.registry - the URI of the registry on which the package is hosted
+ * @param {string} requestInfo.packageManager - the package manager to use (Yarn or npm)
  * @param {string} requestInfo.version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
-function getPackageJson({
-  packageName,
-  noRegistry,
-  registry,
-  auth,
-  proxy,
-  version
-}) {
+function getPackageJson({ packageName, noRegistry, packageManager, version }) {
+  // Local package.json
   if (noRegistry) {
     if (fs.existsSync(`node_modules/${packageName}`)) {
       return Promise.resolve(
@@ -137,29 +114,30 @@ function getPackageJson({
       );
     }
   }
-  return getPackageData({ packageName, registry, auth, proxy }).then(data => {
-    const versions = Object.keys(data.versions);
-    // Get max satisfying semver version
-    let versionToInstall = maxSatisfying(versions, version);
-    // If we didn't find a version, maybe it's a tag
-    if (versionToInstall === null) {
-      const tags = Object.keys(data["dist-tags"]);
-      //  If it's not a valid tag, throw an error
-      if (tags.indexOf(version) === -1) {
-        throw new Error("That version or tag does not exist.");
-      }
-      // If the tag is valid, then find the version corresponding to the tag
-      versionToInstall = data["dist-tags"][version];
-    }
 
-    return data.versions[versionToInstall];
-  });
+  // Remote registry
+  return getPackageData({ packageName, packageManager, version })
+    .then(data => {
+      return Promise.resolve(
+        findPackageVersion({
+          data,
+          version
+        })
+      );
+    })
+    .then(version => {
+      return getPackageData({
+        packageName,
+        packageManager,
+        version
+      });
+    });
 }
 
 /**
  * Builds the package install string based on the version
  * @param {Object} options - information needed to build a package install string
- * @param {string} optoins.name - name of the package
+ * @param {string} options.name - name of the package
  * @param {string} options.version - version string of the package
  * @returns {string} - the package name and version formatted for an install command
  */
@@ -190,7 +168,6 @@ const getPackageString = ({ name, version }) => {
  * @param {string} options.version - the version of the package
  * @param {string} options.packageManager - the package manager to use (Yarn or npm)
  * @param {string} options.noRegistry - Disable going to a remote registry to find a list of peers. Use local node_modules instead
- * @param {string} options.registry - the URI of the registry to install from
  * @param {string} options.dev - whether to install the dependencies as devDependencies
  * @param {boolean} options.onlyPeers - whether to install the package itself or only its peers
  * @param {boolean} options.silent - whether to save the new dependencies to package.json (NPM only)
@@ -204,19 +181,16 @@ function installPeerDeps(
     version,
     packageManager,
     noRegistry,
-    registry,
     dev,
     global,
     onlyPeers,
     silent,
     dryRun,
-    auth,
-    extraArgs,
-    proxy
+    extraArgs
   },
   cb
 ) {
-  getPackageJson({ packageName, noRegistry, registry, auth, proxy, version })
+  getPackageJson({ packageName, noRegistry, packageManager, version })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {
@@ -264,12 +238,6 @@ function installPeerDeps(
       }
 
       let args = [];
-      // If any proxy setting were passed then include the http proxy agent.
-      const requestProxy =
-        process.env.HTTP_PROXY || process.env.http_proxy || `${proxy}`;
-      if (requestProxy !== "undefined") {
-        args = args.concat(["--proxy", String(requestProxy)]);
-      }
       // I know I can push it, but I'll just
       // keep concatenating for consistency
       // global must preceed add in yarn; npm doesn't care
@@ -310,11 +278,6 @@ function installPeerDeps(
         silent
       ) {
         args = args.concat("--no-save");
-      }
-
-      // If any registry were passed then include it
-      if (registry) {
-        args = args.concat(["--registry", String(registry)]);
       }
 
       // Pass extra args through
