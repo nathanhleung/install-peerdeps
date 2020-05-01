@@ -180,6 +180,7 @@ const getPackageString = ({ name, version }) => {
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
  * @param {string} options.version - the version of the package
  * @param {string} options.packageManager - the package manager to use (Yarn or npm)
+ * @param {string} options.noRegistry - Disable going to a remote registry to find a list of peers. Use local node_modules instead
  * @param {string} options.registry - the URI of the registry to install from
  * @param {string} options.dev - whether to install the dependencies as devDependencies
  * @param {boolean} options.onlyPeers - whether to install the package itself or only its peers
@@ -193,6 +194,7 @@ function installPeerDeps(
     packageName,
     version,
     packageManager,
+    noRegistry,
     registry,
     dev,
     global,
@@ -205,7 +207,7 @@ function installPeerDeps(
   },
   cb
 ) {
-  getPackageJson({ packageName, noRegistry:onlyPeers, registry, auth, proxy, version })
+  getPackageJson({ packageName, noRegistry, registry, auth, proxy, version })
     // Catch before .then because the .then is so long
     .catch(err => cb(err))
     .then(data => {

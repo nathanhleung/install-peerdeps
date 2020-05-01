@@ -45,6 +45,10 @@ program
   .option("-Y, --yarn", "Install with Yarn")
   .option("-P, --pnpm", "Install with pnpm")
   .option(
+    "-n, --no-registry",
+    "Use local node_modules instead of a remote registry to get the list of peerDependencies"
+  )
+  .option(
     "-r, --registry <uri>",
     "Install from custom registry (defaults to NPM registry)"
   )
@@ -156,6 +160,7 @@ const options = {
   packageName,
   // If packageVersion is undefined, default to "latest"
   version: packageVersion || "latest",
+  noRegistry: program.noRegistry,
   // If registry is undefined, default to the official NPM registry
   // See: https://docs.npmjs.com/using-npm/registry.html
   registry: program.registry || "https://registry.npmjs.org",
