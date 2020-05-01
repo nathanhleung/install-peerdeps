@@ -77,30 +77,39 @@ function getPackageData({ packageName, registry, auth, proxy }) {
 }
 
 /**
- * Spawns the package manager
+ * Spawns a command to the shell
  * @param {string} command - the command to spawn
+ * @param {array} args - listg of arguments to pass to the command
  * @returns {Promise} - a Promise which resolves when the install process is finished
  */
-function spawnInstall(command, args) {
+const spawnCommand = (command, args) => {
   return new Promise((resolve, reject) => {
-    // Spawn install process
-    const installProcess = spawn(command, args, {
+    let stdout = "";
+    let stderr = "";
+
+    const cmdProcess = spawn(command, args, {
       cwd: process.cwd(),
       // Something to do with this, progress bar only shows if stdio is inherit
       // https://github.com/yarnpkg/yarn/issues/2200
       stdio: "inherit"
     });
-    installProcess.on("error", err => reject(err));
-    installProcess.on("close", code => {
-      if (code !== 0) {
-        return reject(
-          new Error(`The install process exited with error code ${code}.`)
-        );
+
+    cmdProcess.stdout.on("data", chunk => {
+      stdout += chunk;
+    });
+    cmdProcess.stderr.on("data", chunk => {
+      stderr += chunk;
+    });
+
+    cmdProcess.on("error", reject).on("close", code => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(stderr);
       }
-      return resolve();
     });
   });
-}
+};
 
 /**
  * Gets the contents of the package.json for a package at a specific version
@@ -329,7 +338,7 @@ function installPeerDeps(
       } else {
         console.log(`Installing peerdeps for ${packageName}@${version}.`);
         console.log(commandString);
-        spawnInstall(packageManager + extra, args)
+        spawnCommand(packageManager + extra, args)
           .then(() => cb(null))
           .catch(err => cb(err));
       }
