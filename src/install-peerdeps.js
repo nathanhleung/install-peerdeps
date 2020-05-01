@@ -145,6 +145,33 @@ function getPackageJson(
 }
 
 /**
+ * Builds the package install string based on the version
+ * @param {Object} options - information needed to build a package install string
+ * @param {string} optoins.name - name of the package
+ * @param {string} options.version - version string of the package
+ * @returns {string} - the package name and version formatted for an install command
+ */
+const getPackageString = ({ name, version }) => {
+  // check for whitespace
+  if (version.indexOf(" ") >= 0) {
+    // Semver ranges can have a join of comparator sets
+    // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
+    // Take each version in the range and find the maxSatisfying
+    const rangeSplit = version
+      .split(" ")
+      .map(v => coerce(v))
+      .filter(v => valid(v));
+    const versionToInstall = maxSatisfying(rangeSplit, version);
+
+    if (versionToInstall === null) {
+      return name;
+    }
+    return `${name}@${versionToInstall}`;
+  }
+  return `${name}@${version}`;
+};
+
+/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -192,28 +219,18 @@ function installPeerDeps(
       // If onlyPeers option is true, don't install the package itself,
       // only its peers.
       let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
-      Object.keys(peerDepsVersionMap).forEach(depName => {
-        // Get the peer dependency version
-        const peerDepVersion = peerDepsVersionMap[depName];
-        // Check if there is whitespace
-        if (peerDepVersion.indexOf(" ") >= 0) {
-          // Semver ranges can have a join of comparator sets
-          // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-          // Take each version in the range and find the maxSatisfying
-          const rangeSplit = peerDepVersion
-            .split(" ")
-            .map(v => coerce(v))
-            .filter(v => valid(v));
-          const versionToInstall = maxSatisfying(rangeSplit, peerDepVersion);
-          if (versionToInstall === null) {
-            packagesString += ` ${depName}`;
-          } else {
-            packagesString += ` ${depName}@${versionToInstall}`;
-          }
-        } else {
-          packagesString += ` ${depName}@${peerDepVersion}`;
-        }
-      });
+
+      const packageList = Object.keys(peerDepsVersionMap).map(name =>
+        getPackageString({
+          name,
+          version: peerDepsVersionMap[name]
+        })
+      );
+
+      if (packageList.length > 0) {
+        packagesString = `${packagesString} ${packageList.join(" ")}`;
+      }
+
       // Construct command based on package manager of current project
       let globalFlag = packageManager === C.yarn ? "global" : "--global";
       if (!global) {
