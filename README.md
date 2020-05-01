@@ -62,6 +62,7 @@ Options:
   -S, --silent                     If using npm, don't save in package.json
   -Y, --yarn                       Install with Yarn
   -P, --pnpm                       Install with pnpm
+  -n, --no-registry                Do not use a remote registry to find dependencies list
   -r, --registry <uri>             Install from custom registry (defaults to NPM registry)
   --dry-run                        Do not install packages, but show the install command that will be run
   -a, --auth <token>               Provide an NPM authToken for private packages.
