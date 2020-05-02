@@ -130,7 +130,7 @@ test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", asyn
       flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
     );
     commands.forEach((command, i) =>
-      t.equal(/ --save-dev /.test(command), true, `flag: \`${flags[i]}\``)
+      t.equal(/ --save-dev\b/.test(command), true, `flag: \`${flags[i]}\``)
     );
   } catch (err) {
     t.fail(err);
