@@ -57,11 +57,11 @@ async function getCliInstallCommand(extraArgs) {
     const fullstderr = [];
     cli.stdout.on("data", data => {
       // not guaranteed to be line-by-line in fact these can be Buffers
-      fullstdout.push(data.toString());
+      fullstdout.push(String(data));
     });
     cli.stderr.on("data", data => {
       // not guaranteed to be line-by-line in fact these can be Buffers
-      fullstderr.push(data.toString());
+      fullstderr.push(String(data));
     });
     cli.on("close", code => {
       if (code !== 0) {
