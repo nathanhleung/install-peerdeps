@@ -157,7 +157,8 @@ const options = {
   // If packageVersion is undefined, default to "latest"
   version: packageVersion || "latest",
   // If registry is undefined, default to the official NPM registry
-  registry: program.registry || "https://registry.npmjs.com",
+  // See: https://docs.npmjs.com/using-npm/registry.html
+  registry: program.registry || "https://registry.npmjs.org",
   dev: devMode,
   global: program.global,
   onlyPeers: program.onlyPeers,
