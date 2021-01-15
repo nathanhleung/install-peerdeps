@@ -202,7 +202,11 @@ test("installs with pnpm successfully", t => {
     const hasPnpmLockYaml = fs.existsSync(pnpmLockYamlPath);
     t.equal(hasPnpmLockYaml, true);
     // Delete pnpm-lock.yaml file
-    fs.unlinkSync(pnpmLockYamlPath);
+    try {
+      fs.unlinkSync(pnpmLockYamlPath);
+    } catch (e) {
+      /**/
+    }
     t.end();
   });
 });

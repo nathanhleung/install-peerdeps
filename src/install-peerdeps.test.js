@@ -6,7 +6,7 @@ test("gets the package data from the registry correctly", t => {
   t.plan(1);
   getPackageData({
     packageName: "eslint-config-airbnb",
-    registry: "https://registry.npmjs.com"
+    registry: "https://registry.npmjs.org"
   }).then(packageData => {
     t.equal(packageData.name, "eslint-config-airbnb");
     t.end();

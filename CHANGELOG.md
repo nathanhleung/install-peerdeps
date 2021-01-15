@@ -1,3 +1,7 @@
+# 2.0.3
+
+- Merge #88 by @cdierkens - set the default registry to the official registry.npmjs.org, resolving #87
+
 # 2.0.2
 
 - Merge #66 by @marlonicus - fix installation not starting after package manager confirmation, resolving #70
