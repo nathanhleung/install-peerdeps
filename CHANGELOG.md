@@ -1,3 +1,7 @@
+# 3.0.0
+
+- Merge #85 by @amclin - use package manager to get info, resolving #72 and #73
+
 # 2.0.3
 
 - Merge #88 by @cdierkens - set the default registry to the official registry.npmjs.org, resolving #87
