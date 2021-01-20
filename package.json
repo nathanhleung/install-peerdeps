@@ -1,6 +1,6 @@
 {
   "name": "install-peerdeps",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "CLI to automatically install peerDeps",
   "main": "lib/cli.js",
   "scripts": {
