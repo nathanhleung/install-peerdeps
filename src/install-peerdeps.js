@@ -30,10 +30,18 @@ function encodePackageName(packageName) {
  * @returns {Promise} - a Promise which resolves when the install process is finished
  */
 const spawnCommand = (command, args) => {
+  const isWindows = process.platform === "win32";
+  let extra = "";
+  if (isWindows && !command.endsWith(".cmd")) {
+    // Spawn doesn't work without this extra stuff in Windows
+    // See https://github.com/nodejs/node/issues/3675
+    extra = ".cmd";
+  }
+
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
-    const cmdProcess = spawn(command, args, {
+    const cmdProcess = spawn(command + extra, args, {
       cwd: process.cwd()
     });
     cmdProcess.stdout.on("data", chunk => {
@@ -229,13 +237,6 @@ function installPeerDeps(
       if (!dev) {
         devFlag = "";
       }
-      const isWindows = process.platform === "win32";
-      let extra = "";
-      if (isWindows) {
-        // Spawn doesn't work without this extra stuff in Windows
-        // See https://github.com/nodejs/node/issues/3675
-        extra = ".cmd";
-      }
 
       let args = [];
       // I know I can push it, but I'll just
@@ -301,7 +302,7 @@ function installPeerDeps(
       } else {
         console.log(`Installing peerdeps for ${packageName}@${version}.`);
         console.log(commandString);
-        spawnCommand(packageManager + extra, args)
+        spawnCommand(packageManager, args)
           .then(() => cb(null))
           .catch(err => cb(err));
       }
