@@ -90,12 +90,10 @@ Here's how you'd use `--extra-args` to pass a custom NPM config option (in this 
 
 ```
 # If you're using npm
-npm install eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --save-dev
+npm install eslint-config-airbnb@18.2.1 eslint@^7.2.0 eslint-plugin-import@^2.22.1 eslint-plugin-jsx-a11y@^6.4.1 eslint-plugin-react@^7.21.5 eslint-plugin-react-hooks@^1.7.0 --save-dev
 
 # If you're using yarn
-yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --dev
+yarn add eslint-config-airbnb@18.2.1 eslint@^7.2.0 eslint-plugin-import@^2.22.1 eslint-plugin-jsx-a11y@^6.4.1 eslint-plugin-react@^7.21.5 eslint-plugin-react-hooks@^1.7.0 --dev
 ```
 
 ### Installing a Different Version Tag
@@ -107,12 +105,8 @@ If you'd like to install a different version of a package than the latest (the d
 The tool will automatically install the version corresponding to the tag, as well as its peer dependencies:
 
 ```
-...
-Installing peerdeps for @angular/core@4.0.0-beta.1.
-yarn add @angular/core rxjs@^5.0.1 zone.js@^0.7.2
-
-yarn add v0.18.1
-...
+Installing peerdeps for @angular/core@next.
+yarn add @angular/core@11.2.0-next.0 rxjs@^6.5.3 zone.js@^0.11.3 --dev
 ```
 
 ## Contributing
