@@ -247,7 +247,8 @@ function installPeerDeps(
           // Remove -0
           return packageName.substr(0, packageName.length - 2);
         }
-        return packageName;
+        // Fix #64 -- add quotes
+        return `"${packageName}"`;
       }
       // If we have spaces in our args spawn()
       // cries foul so we'll split the packagesString
