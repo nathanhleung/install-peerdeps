@@ -154,12 +154,9 @@ const getPackageString = ({ name, version }) => {
   if (version.indexOf(" ") >= 0) {
     // Semver ranges can have a join of comparator sets
     // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-    // Take each version in the range and find the maxSatisfying
-    const rangeSplit = version
-      .split(" ")
-      .map(v => coerce(v))
-      .filter(v => valid(v));
-    const versionToInstall = maxSatisfying(rangeSplit, version);
+    // Take the last version in the range
+    const rangeSplit = version.split(" ");
+    const versionToInstall = rangeSplit[rangeSplit.length - 1];
 
     if (versionToInstall === null) {
       return name;
