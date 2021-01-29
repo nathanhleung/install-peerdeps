@@ -90,12 +90,10 @@ Here's how you'd use `--extra-args` to pass a custom NPM config option (in this 
 
 ```
 # If you're using npm
-npm install eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --save-dev
+npm install "eslint-config-airbnb@18.2.1" "eslint@^7.2.0" "eslint-plugin-import@^2.22.1" "eslint-plugin-jsx-a11y@^6.4.1" "eslint-plugin-react@^7.21.5" "eslint-plugin-react-hooks@^1.7.0" --save-dev
 
 # If you're using yarn
-yarn add eslint-config-airbnb eslint@^3.9.1 eslint-plugin-jsx-a11y@^2.2.3 eslint-plugin-import@^2.1.0 eslint-plugin
--react@^6.6.0 --dev
+yarn add "eslint-config-airbnb@18.2.1" "eslint@^7.2.0" "eslint-plugin-import@^2.22.1" "eslint-plugin-jsx-a11y@^6.4.1" "eslint-plugin-react@^7.21.5" "eslint-plugin-react-hooks@^1.7.0" --dev
 ```
 
 ### Installing a Different Version Tag
