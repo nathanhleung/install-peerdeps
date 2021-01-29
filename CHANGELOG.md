@@ -1,3 +1,7 @@
+# 3.0.3
+
+- Revert quotes around package name
+
 # 3.0.2
 
 - Merge #126 - don't coerce version strings to semver, quote package names
