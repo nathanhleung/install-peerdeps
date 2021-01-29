@@ -1,3 +1,7 @@
+# 3.0.1
+
+- Merge #124 - add .cmd suffix to spawned commands on windows
+
 # 3.0.0
 
 - Merge #85 by @amclin - use package manager to get info, resolving #72 and #73
