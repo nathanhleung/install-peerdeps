@@ -1,3 +1,7 @@
+# 3.0.2
+
+- Merge #126 - don't coerce version strings to semver, quote package names
+
 # 3.0.1
 
 - Merge #124 - add .cmd suffix to spawned commands on windows
