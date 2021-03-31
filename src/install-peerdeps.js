@@ -3,7 +3,7 @@ import "@babel/polyfill";
 
 import fs from "fs";
 import { spawn } from "child_process";
-import { valid, coerce, maxSatisfying } from "semver";
+import { maxSatisfying } from "semver";
 import * as C from "./constants";
 
 /**
