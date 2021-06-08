@@ -142,6 +142,13 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
     });
 }
 
+/**
+ * Method used to sort sets of two comparators based on the max version
+ * supported by each array.
+ * @param {Comparator[2]} a An array of semver comparators.
+ * @param {Comparator[2]} b Another array of semver comparators.
+ * @returns The sorting order between these two arrays of comparators.
+ */
 const rangeComparator = (a, b) => {
   const aOperator = a[1].operator;
   const aMaxVersion = coerce(a[1].value);
