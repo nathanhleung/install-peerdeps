@@ -3,7 +3,7 @@ import "@babel/polyfill";
 
 import fs from "fs";
 import { spawn } from "child_process";
-import { maxSatisfying } from "semver";
+import { coerce, gt, lt, maxSatisfying, Range } from "semver";
 import * as C from "./constants";
 
 /**
@@ -142,6 +142,33 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
     });
 }
 
+const rangeComparator = (a, b) => {
+  const aOperator = a[1].operator;
+  const aMaxVersion = coerce(a[1].value);
+
+  const bOperator = b[1].operator;
+  const bMaxVersion = coerce(b[1].value);
+
+  const aLessThanB = lt(aMaxVersion, bMaxVersion);
+  const aGreaterThanB = gt(aMaxVersion, bMaxVersion);
+
+  if (aGreaterThanB) {
+    return 1;
+  }
+  if (aLessThanB) {
+    return -1;
+  }
+
+  // If max versions are equal, sort by operator
+  if (aOperator === "<=") {
+    return 1;
+  }
+  if (bOperator === "<=") {
+    return -1;
+  }
+  return 0;
+};
+
 /**
  * Builds the package install string based on the version
  * @param {Object} options - information needed to build a package install string
@@ -154,14 +181,18 @@ const getPackageString = ({ name, version }) => {
   if (version.indexOf(" ") >= 0) {
     // Semver ranges can have a join of comparator sets
     // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-    // Take the last version in the range
-    const rangeSplit = version.split(" ");
-    const versionToInstall = rangeSplit[rangeSplit.length - 1];
+    // Take the latest version in the range
 
-    if (versionToInstall === null) {
+    const range = Range(version);
+    // Sort ranges and extract the range supporting the highest possible version
+    const rawVersionRange = range.set.sort(rangeComparator).pop();
+    // Reassemble range to be readable by npm
+    const versionRange = `${rawVersionRange[0].value} ${rawVersionRange[1].value}`;
+
+    if (versionRange === null) {
       return name;
     }
-    return `${name}@${versionToInstall}`;
+    return `${name}@"${versionRange}"`;
   }
   return `${name}@${version}`;
 };
@@ -307,6 +338,6 @@ function installPeerDeps(
 }
 
 // Export for testing
-export { encodePackageName, getPackageData };
+export { encodePackageName, getPackageData, getPackageString };
 
 export default installPeerDeps;
