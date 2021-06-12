@@ -143,21 +143,6 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
 }
 
 /**
- * Builds the package install string based on the version
- * @param {Object} options - information needed to build a package install string
- * @param {string} options.name - name of the package
- * @param {string} options.version - version string of the package
- * @returns {string} - the package name and version formatted for an install command
- */
-const getPackageString = ({ name, version }) => {
-  // check for whitespace
-  if (version.indexOf(" ") >= 0) {
-    return `${name}@"${version}"`;
-  }
-  return `${name}@${version}`;
-};
-
-/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -204,11 +189,8 @@ function installPeerDeps(
       // only its peers.
       let packagesArray = onlyPeers ? [] : [`${packageName}@${data.version}`];
 
-      const packageList = Object.keys(peerDepsVersionMap).map(name =>
-        getPackageString({
-          name,
-          version: peerDepsVersionMap[name]
-        })
+      const packageList = Object.keys(peerDepsVersionMap).map(
+        name => `${name}@${peerDepsVersionMap[name]}`
       );
 
       if (packageList.length > 0) {
@@ -298,6 +280,6 @@ function installPeerDeps(
 }
 
 // Export for testing
-export { encodePackageName, getPackageData, getPackageString };
+export { encodePackageName, getPackageData };
 
 export default installPeerDeps;
