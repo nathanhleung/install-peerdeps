@@ -3,7 +3,7 @@ import "@babel/polyfill";
 
 import fs from "fs";
 import { spawn } from "child_process";
-import { coerce, gt, lt, maxSatisfying, Range } from "semver";
+import { maxSatisfying } from "semver";
 import * as C from "./constants";
 
 /**
@@ -143,40 +143,6 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
 }
 
 /**
- * Method used to sort sets of two comparators based on the max version
- * supported by each array.
- * @param {Comparator[2]} a An array of semver comparators.
- * @param {Comparator[2]} b Another array of semver comparators.
- * @returns The sorting order between these two arrays of comparators.
- */
-const rangeComparator = (a, b) => {
-  const aOperator = a[1].operator;
-  const aMaxVersion = coerce(a[1].value);
-
-  const bOperator = b[1].operator;
-  const bMaxVersion = coerce(b[1].value);
-
-  const aLessThanB = lt(aMaxVersion, bMaxVersion);
-  const aGreaterThanB = gt(aMaxVersion, bMaxVersion);
-
-  if (aGreaterThanB) {
-    return 1;
-  }
-  if (aLessThanB) {
-    return -1;
-  }
-
-  // If max versions are equal, sort by operator
-  if (aOperator === "<=") {
-    return 1;
-  }
-  if (bOperator === "<=") {
-    return -1;
-  }
-  return 0;
-};
-
-/**
  * Builds the package install string based on the version
  * @param {Object} options - information needed to build a package install string
  * @param {string} options.name - name of the package
@@ -186,20 +152,7 @@ const rangeComparator = (a, b) => {
 const getPackageString = ({ name, version }) => {
   // check for whitespace
   if (version.indexOf(" ") >= 0) {
-    // Semver ranges can have a join of comparator sets
-    // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-    // Take the latest version in the range
-
-    const range = Range(version);
-    // Sort ranges and extract the range supporting the highest possible version
-    const rawVersionRange = range.set.sort(rangeComparator).pop();
-    // Reassemble range to be readable by npm
-    const versionRange = `${rawVersionRange[0].value} ${rawVersionRange[1].value}`;
-
-    if (versionRange === null) {
-      return name;
-    }
-    return `${name}@"${versionRange}"`;
+    return `${name}@"${version}"`;
   }
   return `${name}@${version}`;
 };
@@ -249,7 +202,7 @@ function installPeerDeps(
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself,
       // only its peers.
-      let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
+      let packagesArray = onlyPeers ? [] : [`${packageName}@${data.version}`];
 
       const packageList = Object.keys(peerDepsVersionMap).map(name =>
         getPackageString({
@@ -259,7 +212,7 @@ function installPeerDeps(
       );
 
       if (packageList.length > 0) {
-        packagesString = `${packagesString} ${packageList.join(" ")}`;
+        packagesArray = packagesArray.concat(packageList);
       }
 
       // Construct command based on package manager of current project
@@ -290,7 +243,7 @@ function installPeerDeps(
       // If we have spaces in our args spawn()
       // cries foul so we'll split the packagesString
       // into an array of individual packages
-      args = args.concat(packagesString.split(" ").map(fixPackageName));
+      args = args.concat(packagesArray.map(fixPackageName));
       // If devFlag is empty, then we'd be adding an empty arg
       // That causes the command to fail
       if (devFlag !== "") {

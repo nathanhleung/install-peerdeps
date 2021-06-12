@@ -19,5 +19,8 @@ test("gets the latest version from a range of versions", t => {
     name: "eslint-plugin-react-hooks",
     version: "^4.0.1 || ^3 || ^2.3.0 || ^1.7.0"
   });
-  t.equal(packageString, 'eslint-plugin-react-hooks@">=4.0.1 <5.0.0"');
+  t.equal(
+    packageString,
+    'eslint-plugin-react-hooks@"^4.0.1 || ^3 || ^2.3.0 || ^1.7.0"'
+  );
 });
