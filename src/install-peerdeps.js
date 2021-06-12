@@ -143,30 +143,6 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
 }
 
 /**
- * Builds the package install string based on the version
- * @param {Object} options - information needed to build a package install string
- * @param {string} options.name - name of the package
- * @param {string} options.version - version string of the package
- * @returns {string} - the package name and version formatted for an install command
- */
-const getPackageString = ({ name, version }) => {
-  // check for whitespace
-  if (version.indexOf(" ") >= 0) {
-    // Semver ranges can have a join of comparator sets
-    // e.g. '^3.0.2 || ^4.0.0' or '>=1.2.7 <1.3.0'
-    // Take the last version in the range
-    const rangeSplit = version.split(" ");
-    const versionToInstall = rangeSplit[rangeSplit.length - 1];
-
-    if (versionToInstall === null) {
-      return name;
-    }
-    return `${name}@${versionToInstall}`;
-  }
-  return `${name}@${version}`;
-};
-
-/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -211,17 +187,14 @@ function installPeerDeps(
       // Construct packages string with correct versions for install
       // If onlyPeers option is true, don't install the package itself,
       // only its peers.
-      let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
+      let packagesArray = onlyPeers ? [] : [`${packageName}@${data.version}`];
 
-      const packageList = Object.keys(peerDepsVersionMap).map(name =>
-        getPackageString({
-          name,
-          version: peerDepsVersionMap[name]
-        })
+      const packageList = Object.keys(peerDepsVersionMap).map(
+        name => `${name}@${peerDepsVersionMap[name]}`
       );
 
       if (packageList.length > 0) {
-        packagesString = `${packagesString} ${packageList.join(" ")}`;
+        packagesArray = packagesArray.concat(packageList);
       }
 
       // Construct command based on package manager of current project
@@ -252,7 +225,7 @@ function installPeerDeps(
       // If we have spaces in our args spawn()
       // cries foul so we'll split the packagesString
       // into an array of individual packages
-      args = args.concat(packagesString.split(" ").map(fixPackageName));
+      args = args.concat(packagesArray.map(fixPackageName));
       // If devFlag is empty, then we'd be adding an empty arg
       // That causes the command to fail
       if (devFlag !== "") {
