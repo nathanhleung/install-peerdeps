@@ -23,7 +23,7 @@ function spawnCli(extraArgs, cwd = "sandbox") {
     "node",
     [
       ...["--require", "@babel/register", path.join(__dirname, "cli.js")],
-      ...extraArgs
+      ...extraArgs,
     ],
     { cwd: fullCwd }
   );
@@ -55,15 +55,15 @@ async function getCliInstallCommand(extraArgs) {
     const cli = spawnCli([...extraArgs, "--dry-run"]);
     const fullstdout = [];
     const fullstderr = [];
-    cli.stdout.on("data", data => {
+    cli.stdout.on("data", (data) => {
       // not guaranteed to be line-by-line in fact these can be Buffers
       fullstdout.push(String(data));
     });
-    cli.stderr.on("data", data => {
+    cli.stderr.on("data", (data) => {
       // not guaranteed to be line-by-line in fact these can be Buffers
       fullstderr.push(String(data));
     });
-    cli.on("close", code => {
+    cli.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(`Unsuccessful exit code. ${fullstderr}`));
       }
@@ -72,19 +72,19 @@ async function getCliInstallCommand(extraArgs) {
       const lines = fullstdout
         .join("")
         .split(/\r?\n/g)
-        .filter(l => !!l.trim());
+        .filter((l) => !!l.trim());
 
       resolve(lines[lines.length - 1]);
     });
     // Make sure to call reject() on error so that the Promise
     // doesn't hang forever
-    cli.on("error", err => reject(err));
+    cli.on("error", (err) => reject(err));
   });
 }
 
-test("errors when more than one package is provided", t => {
+test("errors when more than one package is provided", (t) => {
   const cli = spawnCli(["eslint-config-airbnb", "angular"]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     // We should be able to do t.equal(code, 1), but earlier Node versions
     // handle uncaught exceptions differently so we can't (0.10 returns 8,
     // 0.12 returns 9).
@@ -93,28 +93,28 @@ test("errors when more than one package is provided", t => {
   });
 });
 
-test("errors when no arguments are provided", t => {
+test("errors when no arguments are provided", (t) => {
   const cli = spawnCli([]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
   });
 });
 
-test("errors when the package name argument is formatted incorrectly", t => {
+test("errors when the package name argument is formatted incorrectly", (t) => {
   const cli = spawnCli(["heyhe#@&*()"]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
   });
 });
 
-test("only installs peerDependencies when `--only-peers` is specified", async t => {
+test("only installs peerDependencies when `--only-peers` is specified", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
       "eslint-config-airbnb",
-      "--only-peers"
+      "--only-peers",
     ]);
     t.equal(/ eslint-config-airbnb /.test(command), false);
   } catch (err) {
@@ -122,12 +122,12 @@ test("only installs peerDependencies when `--only-peers` is specified", async t 
   }
 });
 
-test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", async t => {
+test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", async (t) => {
   const flags = ["-D", "-d", "--dev"];
   t.plan(flags.length);
   try {
     const commands = await Promise.all(
-      flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
+      flags.map((flag) => getCliInstallCommand(["eslint-config-airbnb", flag]))
     );
     commands.forEach((command, i) =>
       t.equal(/ --save-dev\b/.test(command), true, `flag: \`${flags[i]}\``)
@@ -137,13 +137,13 @@ test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", asyn
   }
 });
 
-test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", async t => {
+test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
       "eslint-config-airbnb",
       "--global",
-      "-Y"
+      "-Y",
     ]);
     t.equal(/^yarn global/.test(command), true);
   } catch (err) {
@@ -151,12 +151,12 @@ test("places `global` as first arg following `yarn` when using yarn and `--globa
   }
 });
 
-test("adds explicit `--global` flag when using `--global` with NPM", async t => {
+test("adds explicit `--global` flag when using `--global` with NPM", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
       "eslint-config-airbnb",
-      "--global"
+      "--global",
     ]);
     t.equal(/\bnpm\s--global\b/.test(command), true);
   } catch (err) {
@@ -164,12 +164,12 @@ test("adds explicit `--global` flag when using `--global` with NPM", async t => 
   }
 });
 
-test("does not add `--save` when using `--global` with NPM", async t => {
+test("does not add `--save` when using `--global` with NPM", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
       "eslint-config-airbnb",
-      "--global"
+      "--global",
     ]);
     t.equal(/\s--save\b/.test(command), false);
   } catch (err) {
@@ -177,12 +177,12 @@ test("does not add `--save` when using `--global` with NPM", async t => {
   }
 });
 
-test("adds an explicit `--no-save` when using `--silent` with NPM", async t => {
+test("adds an explicit `--no-save` when using `--silent` with NPM", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
       "eslint-config-airbnb",
-      "--silent"
+      "--silent",
     ]);
     t.equal(/\s--no-save\b/.test(command), true);
   } catch (err) {
@@ -190,12 +190,12 @@ test("adds an explicit `--no-save` when using `--silent` with NPM", async t => {
   }
 });
 
-test("installs with pnpm successfully", t => {
+test("installs with pnpm successfully", (t) => {
   const cli = spawnCli(["eslint-config-airbnb", "--pnpm"], "pnpm");
-  cli.on("data", data => {
+  cli.on("data", (data) => {
     t.comment(data);
   });
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     if (code !== 0) {
       t.fail(`CLI exited with error code ${code}`);
     }
@@ -216,6 +216,39 @@ test("installs with pnpm successfully", t => {
     }
     t.end();
   });
+});
+
+test("removes the packages containing the keywords passed with the --omit-with-keywords flag", async (t) => {
+  const keywords = "jsx,react,typescript";
+  try {
+    const cli = spawnCli([
+      "eslint-config-airbnb",
+      `--omit-with-keywords=${keywords}`,
+      // "--extra-args=--force",
+    ]);
+    cli.on("close", (code) => {
+      if (code !== 0) {
+        t.fail(`CLI exited with error code ${code}`);
+      }
+      const fullCwd = path.join(__dirname, "..", "fixtures", "sandbox");
+      const packageJsonFilePath = path.resolve(fullCwd, "package.json");
+      const packageJsonFile = fs.readFileSync(packageJsonFilePath, "utf-8");
+      const deps = JSON.parse(packageJsonFile).dependencies;
+      // check if the dependencies contain the keywords
+      if (deps) {
+        const depKeysArray = Object.keys(deps);
+        const keywordsArray = keywords.split(",");
+        const hasDepsWithKeys = depKeysArray.some(
+          (key) =>
+            keywordsArray.filter((keyword) => key.includes(keyword)).length > 0
+        );
+        t.equal(hasDepsWithKeys, false);
+      }
+      t.end();
+    });
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
 // See https://github.com/nathanhleung/install-peerdeps/issues/33
