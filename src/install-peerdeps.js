@@ -195,7 +195,7 @@ const omitDependenciesWithKeywords = (peerDeps, keywords) => {
  * @param {boolean} options.silent - whether to save the new dependencies to package.json (NPM only)
  * @param {boolean} options.dryRun - whether to actually install the packages or just display
  *                                   the resulting command
- * @param {boolean} options.omitWithKeywords - List of keywords that'll be used to grep for packages to omit
+ * @param {string} options.omitWithKeywords - List of keywords that'll be used to grep for packages to omit
  *                                    from the install list
  * @param {Function} cb - the callback to call when the install process is finished
  */
