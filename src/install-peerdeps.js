@@ -42,16 +42,16 @@ const spawnCommand = (command, args) => {
     let stdout = "";
     let stderr = "";
     const cmdProcess = spawn(command + extra, args, {
-      cwd: process.cwd()
+      cwd: process.cwd(),
     });
-    cmdProcess.stdout.on("data", chunk => {
+    cmdProcess.stdout.on("data", (chunk) => {
       stdout += chunk;
     });
-    cmdProcess.stderr.on("data", chunk => {
+    cmdProcess.stderr.on("data", (chunk) => {
       stderr += chunk;
     });
     cmdProcess.on("error", reject);
-    cmdProcess.on("exit", code => {
+    cmdProcess.on("exit", (code) => {
       if (code === 0) {
         resolve(stdout);
       } else {
@@ -95,7 +95,7 @@ function findPackageVersion({ data, version }) {
 function getPackageData({ packageName, packageManager, version }) {
   const pkgString = version ? `${packageName}@${version}` : packageName;
   const args = ["info", pkgString, "--json"];
-  return spawnCommand(packageManager, args).then(response => {
+  return spawnCommand(packageManager, args).then((response) => {
     const parsed = JSON.parse(response);
     // Yarn returns with an extra nested { data } that NPM doesn't
     return parsed.data || parsed;
@@ -125,21 +125,21 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
 
   // Remote registry
   return getPackageData({ packageName, packageManager, version })
-    .then(data => {
-      return Promise.resolve(
+    .then((data) =>
+      Promise.resolve(
         findPackageVersion({
           data,
-          version
+          version,
         })
-      );
-    })
-    .then(version => {
-      return getPackageData({
+      )
+    )
+    .then((version) =>
+      getPackageData({
         packageName,
         packageManager,
-        version
-      });
-    });
+        version,
+      })
+    );
 }
 
 /**
@@ -167,6 +167,23 @@ const getPackageString = ({ name, version }) => {
 };
 
 /**
+ * Returns an dependency array that does not have the keywords passed
+ * @param {Object} peerDeps - the unfiltered list of peer dependencies
+ * @param {Array<string>} keywords - the keywords that'll be used to determine which dependencies to remove
+ * @returns
+ */
+const omitDependenciesWithKeywords = (peerDeps, keywords) => {
+  const filtered = Object.keys(peerDeps).filter((key) => {
+    const keywordsFound = keywords.filter((keyword) => key.includes(keyword));
+    return keywordsFound.length <= 0;
+  });
+  return filtered.reduce((acc, curr) => {
+    acc[curr] = peerDeps[curr];
+    return acc;
+  }, {});
+};
+
+/**
  * Installs the peer dependencies of the provided packages
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
@@ -178,6 +195,8 @@ const getPackageString = ({ name, version }) => {
  * @param {boolean} options.silent - whether to save the new dependencies to package.json (NPM only)
  * @param {boolean} options.dryRun - whether to actually install the packages or just display
  *                                   the resulting command
+ * @param {boolean} options.omitWithKeywords - List of keywords that'll be used to grep for packages to omit
+ *                                    from the install list
  * @param {Function} cb - the callback to call when the install process is finished
  */
 function installPeerDeps(
@@ -191,16 +210,17 @@ function installPeerDeps(
     onlyPeers,
     silent,
     dryRun,
-    extraArgs
+    extraArgs,
+    omitWithKeywords,
   },
   cb
 ) {
   getPackageJson({ packageName, noRegistry, packageManager, version })
     // Catch before .then because the .then is so long
-    .catch(err => cb(err))
-    .then(data => {
+    .catch((err) => cb(err))
+    .then((data) => {
       // Get peer dependencies for max satisfying version
-      const peerDepsVersionMap = data.peerDependencies;
+      let peerDepsVersionMap = data.peerDependencies;
       if (typeof peerDepsVersionMap === "undefined") {
         throw new Error(
           "The package you are trying to install has no peer " +
@@ -213,10 +233,21 @@ function installPeerDeps(
       // only its peers.
       let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
 
-      const packageList = Object.keys(peerDepsVersionMap).map(name =>
+      // Check if omitWithKeywords has been passed, generate keywords and use them to omit packages containing them
+      if (omitWithKeywords !== "") {
+        const keywords = omitWithKeywords
+          .split(",")
+          .map((keyword) => keyword.trim());
+        peerDepsVersionMap = omitDependenciesWithKeywords(
+          peerDepsVersionMap,
+          keywords
+        );
+      }
+
+      const packageList = Object.keys(peerDepsVersionMap).map((name) =>
         getPackageString({
           name,
-          version: peerDepsVersionMap[name]
+          version: peerDepsVersionMap[name],
         })
       );
 
@@ -287,7 +318,7 @@ function installPeerDeps(
       // There's a bug with Yarn 1.0 in which an empty arg
       // causes the install process to fail with a "malformed
       // response from the registry" error
-      args = args.filter(a => a !== "");
+      args = args.filter((a) => a !== "");
 
       //  Show user the command that's running
       const commandString = `${packageManager} ${args.join(" ")}\n`;
@@ -301,7 +332,7 @@ function installPeerDeps(
         console.log(commandString);
         spawnCommand(packageManager, args)
           .then(() => cb(null))
-          .catch(err => cb(err));
+          .catch((err) => cb(err));
       }
     });
 }

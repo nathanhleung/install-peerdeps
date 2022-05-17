@@ -39,7 +39,7 @@ function parsePackageString(packageString) {
 
   return {
     packageName,
-    packageVersion
+    packageVersion,
   };
 }
 
