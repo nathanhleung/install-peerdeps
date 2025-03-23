@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 import "@babel/polyfill";
 
+import clc from "cli-color";
 import { Command } from "commander";
 import { confirm } from "promptly";
-import clc from "cli-color";
 
-import hasYarn from "./has-yarn";
 import pkg from "../package.json";
-import installPeerDeps from "./install-peerdeps";
-import { parsePackageString } from "./helpers";
 import * as C from "./constants";
+import hasYarn from "./has-yarn";
+import { parsePackageString } from "./helpers";
+import installPeerDeps from "./install-peerdeps";
 
 // Create program object
 const program = new Command("install-peerdeps");
@@ -95,8 +95,9 @@ if (!packageName) {
   process.exit(9);
 }
 
-// Default package manager is npm
-let packageManager = C.npm;
+/** @type {C.npm | C.yarn | C.pnpm} */
+let packageManager = C.npm; // Default package manager is npm
+
 if (program.yarn && program.pnpm) {
   console.log(
     `${C.errorText} Option --yarn and --pnpm cannot be used concurrently.`
