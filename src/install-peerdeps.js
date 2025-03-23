@@ -48,21 +48,37 @@ const spawnCommand = (command, args) => {
       }
     );
     cmdProcess.stdout.on("data", chunk => {
-      stdout += chunk;
+      if (chunk instanceof Buffer) {
+        stdout += chunk.toString("utf8");
+      } else {
+        stdout += chunk;
+      }
     });
     cmdProcess.stderr.on("data", chunk => {
-      stderr += chunk;
+      if (chunk instanceof Buffer) {
+        stderr += chunk.toString("utf8");
+      } else {
+        stderr += chunk;
+      }
     });
     cmdProcess.on("error", reject);
     cmdProcess.on("exit", code => {
       if (code === 0) {
         resolve(stdout);
       } else {
-        reject(stderr);
+        reject(new Error(`${[stdout, stderr].filter(Boolean).join("\n\n")}`));
       }
     });
   });
 };
+
+/**
+ * Gets the current Yarn version
+ * @returns {string} - The current Yarn version
+ */
+function getYarnVersion() {
+  return spawnCommand("yarn", ["--version"]).then(it => it.trim());
+}
 
 /**
  * Parse a registry manifest to get the best matching version
@@ -91,18 +107,37 @@ function findPackageVersion({ data, version }) {
  * Gets metadata about the package from the provided registry
  * @param {Object} requestInfo - information needed to make the request for the data
  * @param {string} requestInfo.packageName - the name of the package
- * @param {string} requestInfo.packageManager - the package manager to use (Yarn or npm)
+ * @param {string} requestInfo.packageManager - the package manager to use
  * @param {string} requestInfo.version - the version (or version tag) to attempt to install
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */
 function getPackageData({ packageName, packageManager, version }) {
   const pkgString = version ? `${packageName}@${version}` : packageName;
-  const args = ["info", pkgString, "--json"];
-  return spawnCommand(packageManager, args).then(response => {
-    const parsed = JSON.parse(response);
-    // Yarn returns with an extra nested { data } that NPM doesn't
-    return parsed.data || parsed;
-  });
+  return getYarnVersion()
+    .catch(err => {
+      if (packageManager === C.yarn) {
+        throw err;
+      }
+      // If we're not trying to install with Yarn, we won't re-throw and instead will ignore the error and continue
+    })
+    .then(yarnVersion => {
+      // In Yarn versions >= 2, the `yarn info` command was replaced with `yarn npm info`
+      const isUsingYarnGreaterThan1 =
+        yarnVersion && !yarnVersion.startsWith("1.");
+
+      const args = [
+        ...(isUsingYarnGreaterThan1 ? ["npm", "info"] : ["info"]),
+        pkgString,
+        "--json"
+      ];
+
+      return spawnCommand(packageManager, args).then(response => {
+        const parsed = JSON.parse(response);
+
+        // Yarn 1 returns with an extra nested { data } that NPM doesn't
+        return parsed.data || parsed;
+      });
+    });
 }
 
 /**
@@ -110,7 +145,7 @@ function getPackageData({ packageName, packageManager, version }) {
  * @param {Object} requestInfo - information needed to make the request for the data
  * @param {string} requestInfo.packageName - the name of the package
  * @param {Boolean} requestInfo.noRegistry - Gets the package dependencies list from the local node_modules instead of remote registry
- * @param {string} requestInfo.packageManager - the package manager to use (Yarn or npm)
+ * @param {string} requestInfo.packageManager - the package manager to use
  * @param {string} requestInfo.version - the version (or version tag) to attempt to install. Ignored if an installed version of the package is found in node_modules.
  * @returns {Promise<Object>} - a Promise which resolves to the JSON response from the registry
  */

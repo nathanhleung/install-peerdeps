@@ -22,13 +22,13 @@ const { name, version } = pkg;
  * parse the package string.
  */
 function printPackageFormatError() {
-  console.log(
+  console.error(
     `${C.errorText} Please specify the package to install with peerDeps in the form of \`package\` or \`package@n.n.n\``
   );
-  console.log(
+  console.error(
     `${C.errorText} At this time you must provide the full semver version of the package.`
   );
-  console.log(
+  console.error(
     `${C.errorText} Alternatively, omit it to automatically install the latest version of the package.`
   );
 }
@@ -64,7 +64,7 @@ console.log(clc.bold(`${name} v${version}`));
 
 // Make sure we're installing at least one package
 if (program.args.length === 0) {
-  console.log(
+  console.error(
     `${C.errorText} Please specify a package to install with peerDeps.`
   );
   // An exit code of "9" indicates an invalid argument
@@ -75,7 +75,7 @@ if (program.args.length === 0) {
 
 // Make sure we're installing no more than one package
 if (program.args.length > 1) {
-  console.log(
+  console.error(
     `${C.errorText} Too many arguments. Please specify ONE package at a time to install with peerDeps. Alternatively, pass extra arguments with --extra-args "<extra_args>".`
   );
   // An exit code of "9" indicates an invalid argument
@@ -99,7 +99,7 @@ if (!packageName) {
 let packageManager = C.npm; // Default package manager is npm
 
 if (program.yarn && program.pnpm) {
-  console.log(
+  console.error(
     `${C.errorText} Option --yarn and --pnpm cannot be used concurrently.`
   );
   process.exit(9);
@@ -113,7 +113,7 @@ if (program.pnpm) {
 
 // Yarn does not allow silent install of dependencies
 if (program.yarn && program.silent) {
-  console.log(`${C.errorText} Option --silent cannot be used with --yarn.`);
+  console.error(`${C.errorText} Option --silent cannot be used with --yarn.`);
   process.exit(9);
 }
 
@@ -122,7 +122,7 @@ const devMode = program.dev || program.D;
 // since --dev means it should be saved
 // as a devDependency
 if (devMode && program.silent) {
-  console.log(`${C.errorText} Option --silent cannot be used with --dev.`);
+  console.error(`${C.errorText} Option --silent cannot be used with --dev.`);
   process.exit(9);
 }
 
@@ -130,7 +130,7 @@ if (devMode && program.silent) {
 // since --dev means it should be saved
 // as a devDependency (locally)
 if (devMode && program.silent) {
-  console.log(`${C.errorText} Option --dev cannot be used with --global.`);
+  console.error(`${C.errorText} Option --dev cannot be used with --global.`);
   process.exit(9);
 }
 
@@ -172,7 +172,7 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
     })
     .catch(err => {
       if (err) {
-        console.log(`${C.errorText} ${err.message}`);
+        console.error(`${C.errorText} ${err.message}`);
         process.exit(1);
       }
     });
@@ -190,11 +190,10 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
  */
 function installCb(err) {
   if (err) {
-    console.log(`${C.errorText} ${err.message}`);
+    console.error(`${C.errorText} ${err.message}`);
     process.exit(1);
   }
-  let successMessage = `${C.successText} ${packageName}
-  and its peerDeps were installed successfully.`;
+  let successMessage = `${C.successText} ${packageName} and its peerDeps were installed successfully.`;
   if (program.onlyPeers) {
     successMessage = `${C.successText} The peerDeps of ${packageName} were installed successfully.`;
   }
