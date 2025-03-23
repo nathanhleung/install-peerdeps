@@ -4,7 +4,7 @@
 
 > _Disclaimer: Airbnb is not affiliated with, and does not endorse, this CLI tool_
 
-[![Build Status](https://travis-ci.org/nathanhleung/install-peerdeps.png?branch=master)](https://travis-ci.org/nathanhleung/install-peerdeps) [![Dependency Status](https://david-dm.org/nathanhleung/install-peerdeps.svg)](https://david-dm.org/nathanhleung/install-peerdeps) [![devDependency Status](https://david-dm.org/nathanhleung/install-peerdeps/dev-status.svg)](https://david-dm.org/nathanhleung/install-peerdeps?type=dev)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nathanhleung/install-peerdeps/node.yml) ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/nathanhleung/install-peerdeps)
 
 [![npm total downloads](https://img.shields.io/npm/dt/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) [![npm monthly downloads](https://img.shields.io/npm/dm/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps) ![GitHub stars](https://img.shields.io/github/stars/nathanhleung/install-peerdeps?style=social)
 
