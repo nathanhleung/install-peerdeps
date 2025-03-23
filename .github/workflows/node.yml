@@ -15,9 +15,9 @@ jobs:
           preset: '>=8'
           type: 'majors'
 
-  latest:
+  latest-ubuntu:
     needs: [matrix]
-    name: 'latest majors'
+    name: 'latest majors (ubuntu)'
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,16 +26,34 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: ljharb/actions/node/install@main
-        name: 'nvm install ${{ matrix.node-version }} && npm install'
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          before_install: npm install -g pnpm@3 yarn@1
+      - run: npm install
+      - run: npm install -g pnpm@3 yarn@1
+      - run: npm run tests-only
+
+  latest-windows:
+    needs: [matrix]
+    name: 'latest majors (windows)'
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix.outputs.latest) }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm install -g pnpm@3 yarn@1
       - run: npm run tests-only
 
   node:
     name: 'node 8+'
-    needs: [latest]
+    needs: [latest-ubuntu, latest-windows]
     runs-on: ubuntu-latest
     steps:
       - run: 'echo tests completed'
