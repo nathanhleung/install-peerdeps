@@ -1,3 +1,7 @@
+# 3.0.4
+
+- Merge #254 - update call to `spawn` due to Node.js security, resolving #252
+
 # 3.0.3
 
 - Revert quotes around package name
