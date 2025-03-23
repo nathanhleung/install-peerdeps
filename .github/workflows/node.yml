@@ -1,6 +1,6 @@
 name: 'Tests: node.js'
 
-on: [pull_request, push]
+on: [pull_request]
 
 jobs:
   matrix:
@@ -48,6 +48,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
+      - run: npm cache clean --force
       - run: npm install -g pnpm@3 yarn@1
       - run: npm run tests-only
 

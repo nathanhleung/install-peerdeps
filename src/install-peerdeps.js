@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign, no-shadow, consistent-return */
 import "@babel/polyfill";
 
-import fs from "fs";
 import { spawn } from "child_process";
+import fs from "fs";
 import { maxSatisfying } from "semver";
 import * as C from "./constants";
 
@@ -25,25 +25,28 @@ function encodePackageName(packageName) {
 
 /**
  * Spawns a command to the shell
- * @param {string} command - the command to spawn
- * @param {array} args - listg of arguments to pass to the command
+ * @param {string} command - the command to spawn; this must be sanitized per https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2#command-injection-via-args-parameter-of-child_processspawn-without-shell-option-enabled-on-windows-cve-2024-27980---high
+ * @param {array} args - list of arguments to pass to the command
  * @returns {Promise} - a Promise which resolves when the install process is finished
  */
 const spawnCommand = (command, args) => {
   const isWindows = process.platform === "win32";
-  let extra = "";
-  if (isWindows && !command.endsWith(".cmd")) {
-    // Spawn doesn't work without this extra stuff in Windows
-    // See https://github.com/nodejs/node/issues/3675
-    extra = ".cmd";
-  }
 
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
-    const cmdProcess = spawn(command + extra, args, {
-      cwd: process.cwd()
-    });
+    const cmdProcess = spawn(
+      `${command}${isWindows && !command.endsWith(".cmd") ? ".cmd" : ""}`,
+      args,
+      {
+        cwd: process.cwd(),
+
+        // See:
+        // - https://github.com/nathanhleung/install-peerdeps/issues/252
+        // - https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2#command-injection-via-args-parameter-of-child_processspawn-without-shell-option-enabled-on-windows-cve-2024-27980---high
+        shell: isWindows
+      }
+    );
     cmdProcess.stdout.on("data", chunk => {
       stdout += chunk;
     });
@@ -171,7 +174,7 @@ const getPackageString = ({ name, version }) => {
  * @param {Object} options - options for the install child_process
  * @param {string} options.packageName - the name of the package for which to install peer dependencies
  * @param {string} options.version - the version of the package
- * @param {string} options.packageManager - the package manager to use (Yarn or npm)
+ * @param {C.npm | C.yarn | C.pnpm} options.packageManager - the package manager to use (Yarn or npm)
  * @param {string} options.noRegistry - Disable going to a remote registry to find a list of peers. Use local node_modules instead
  * @param {string} options.dev - whether to install the dependencies as devDependencies
  * @param {boolean} options.onlyPeers - whether to install the package itself or only its peers
