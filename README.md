@@ -11,7 +11,7 @@
 [![Node version](https://img.shields.io/node/v/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps) [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps)
 [![GitHub license](https://img.shields.io/github/license/nathanhleung/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)
 
-A command-line interface to install an npm package and its peer dependencies automatically.
+💻 Quickly install an npm package and its peer dependencies automatically, using npm, Yarn, or pnpm. 
 
 Starting with npm v3.0, peer dependencies are not automatically installed on `npm install`, and it can be a hassle to install them all manually. The `install-peerdeps` tool makes the process fast and easy.
 
