@@ -15,7 +15,7 @@ A command-line interface to install an NPM package and its peer dependencies aut
 
 Starting with NPM v3.0, peer dependencies are not automatically installed on `npm install`, and it can be a hassle to install them all manually. The `install-peerdeps` tool makes the process fast and easy.
 
-Also works with Yarn.
+Also works with [Yarn](https://yarnpkg.com/) (with the `--yarn` flag) and [pnpm](https://pnpm.io/) (with the `--pnpm` flag).
 
 ## Quick Start
 
