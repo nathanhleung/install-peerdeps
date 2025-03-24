@@ -35,7 +35,7 @@ The specified package along with its peer dependencies will be installed.
 
 ## Why
 
-It's true that on Linux you can run something like this to automatically install peerDeps (taken from [AirBnb's eslint config repo](https://github.com/airbnb/javascript)):
+It's true that on Linux you can run something like this to automatically install peerDeps (taken from [Airbnb's eslint config repo](https://github.com/airbnb/javascript)):
 
 ```
 (
