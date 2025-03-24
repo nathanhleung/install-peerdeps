@@ -20,15 +20,15 @@ Also works with Yarn.
 ## Quick Start
 
 ```
-# If you're using npm
-npm install -g install-peerdeps
-
-# If you're using yarn
-yarn global add install-peerdeps
-
 cd my-project-directory
 
-install-peerdeps <package>[@<version>]
+npx install-peerdeps <package>[@<version>]
+
+# If you're using yarn
+yarn dlx install-peerdeps --yarn <package>[@<version>]
+
+# If you're using pnpm
+pnpm dlx install-peerdeps --pnpm <package>[@<version>]
 ```
 
 The specified package along with its peer dependencies will be installed.

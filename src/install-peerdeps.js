@@ -114,11 +114,19 @@ function findPackageVersion({ data, version }) {
 function getPackageData({ packageName, packageManager, version }) {
   const pkgString = version ? `${packageName}@${version}` : packageName;
   return getYarnVersion()
+    .then(yarnVersion => {
+      // Only return `yarnVersion` when we're using Yarn
+      if (packageManager !== C.yarn) {
+        return null;
+      }
+      return yarnVersion;
+    })
     .catch(err => {
       if (packageManager === C.yarn) {
         throw err;
       }
       // If we're not trying to install with Yarn, we won't re-throw and instead will ignore the error and continue
+      return null;
     })
     .then(yarnVersion => {
       // In Yarn versions >= 2, the `yarn info` command was replaced with `yarn npm info`
