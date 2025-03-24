@@ -11,9 +11,9 @@
 [![Node version](https://img.shields.io/node/v/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps) [![npm version](https://badge.fury.io/js/install-peerdeps.svg)](https://www.npmjs.com/package/install-peerdeps)
 [![GitHub license](https://img.shields.io/github/license/nathanhleung/install-peerdeps.svg)](https://github.com/nathanhleung/install-peerdeps/blob/master/LICENSE)
 
-A command-line interface to install an NPM package and its peer dependencies automatically.
+A command-line interface to install an npm package and its peer dependencies automatically.
 
-Starting with NPM v3.0, peer dependencies are not automatically installed on `npm install`, and it can be a hassle to install them all manually. The `install-peerdeps` tool makes the process fast and easy.
+Starting with npm v3.0, peer dependencies are not automatically installed on `npm install`, and it can be a hassle to install them all manually. The `install-peerdeps` tool makes the process fast and easy.
 
 Also works with [Yarn](https://yarnpkg.com/) (with the `--yarn` flag) and [pnpm](https://pnpm.io/) (with the `--pnpm` flag).
 
@@ -64,17 +64,17 @@ Options:
   -P, --pnpm                       Install with pnpm
   -n, --no-registry                Do not use a remote registry to find dependencies list
   --dry-run                        Do not install packages, but show the install command that will be run
-  -x, --extra-args "<extra_args>"  Extra arguments to pass through to NPM or Yarn
+  -x, --extra-args "<extra_args>"  Extra arguments to pass through to the underlying package manager
   -h, --help                       output usage information
 ```
 
 ### Extra Arguments
 
-Only core Yarn and NPM arguments relating to package installation are officially provided by `install-peerdeps`. However, if you'd like to pass through additional arguments, you may do so with `--extra-args`. Here's how you'd install a package into a Yarn-workspace-enabled repository:
+Only core npm, Yarn, and pnpm arguments relating to package installation are officially provided by `install-peerdeps`. However, if you'd like to pass through additional arguments, you may do so with `--extra-args`. Here's how you'd install a package into a Yarn-workspace-enabled repository:
 
 `install-peerdeps <package> --dev -Y --extra-args "-W"`
 
-Here's how you'd use `--extra-args` to pass a custom NPM config option (in this case, disabling `strict-ssl` when accessing a custom registry over HTTPS):
+Here's how you'd use `--extra-args` to pass a custom npm config option (in this case, disabling `strict-ssl` when accessing a custom registry over HTTPS):
 
 `install-peerdeps <package> --extra-args "--strict-ssl false"`
 

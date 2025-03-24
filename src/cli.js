@@ -54,7 +54,7 @@ program
   )
   .option(
     '-x, --extra-args "<extra_args>"',
-    "Extra arguments to pass through to NPM or Yarn"
+    "Extra arguments to pass through to the underlying package manager"
   )
   .usage("<package>[@<version>], default version is 'latest'")
   .parse(process.argv);
@@ -149,7 +149,7 @@ const options = {
   dryRun: program.dryRun,
   auth: program.auth,
   // Args after -- will be passed through
-  extraArgs: program.extraArgs || ""
+  extraArgs: program.extraArgs || "",
 };
 
 // Disabled this rule so we can hoist the callback
@@ -162,7 +162,7 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
   confirm(
     "It seems as if you are using Yarn. Would you like to use Yarn for the installation? (y/n)"
   )
-    .then(value => {
+    .then((value) => {
       // Value is true or false; if true, they want to use Yarn
       if (value) {
         packageManager = C.yarn;
@@ -170,7 +170,7 @@ if (hasYarn() && packageManager !== C.yarn && !program.silent) {
       // Now install, but with the new packageManager
       installPeerDeps({ ...options, packageManager }, installCb);
     })
-    .catch(err => {
+    .catch((err) => {
       if (err) {
         console.error(`${C.errorText} ${err.message}`);
         process.exit(1);
