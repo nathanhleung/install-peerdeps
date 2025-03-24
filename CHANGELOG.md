@@ -1,3 +1,7 @@
+# 3.0.5
+
+- Merge #255 - fix wrong `info` command in Yarn >1, resolving #215, #249, maybe #171, #193, and #228
+
 # 3.0.4
 
 - Merge #254 - update call to `spawn` due to Node.js security, resolving #252
