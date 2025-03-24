@@ -1,3 +1,7 @@
+# 3.0.6
+
+- Fix NPM install broken by new Yarn code path (`npm npm info` is not a valid `npm` command)
+
 # 3.0.5
 
 - Merge #255 - fix wrong `info` command in Yarn >1, resolving #215, #249, maybe #171, #193, and #228
