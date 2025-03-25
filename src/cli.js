@@ -140,7 +140,7 @@ const options = {
   packageName,
   // If packageVersion is undefined, default to "latest"
   version: packageVersion || "latest",
-  noRegistry: program.noRegistry,
+  noRegistry: !program.registry,
   dev: devMode,
   global: program.global,
   onlyPeers: program.onlyPeers,
