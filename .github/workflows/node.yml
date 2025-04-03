@@ -49,7 +49,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm cache clean --force
-      - run: npm install -g pnpm@3 yarn@1
+      - run: npm install -f -g pnpm@3 yarn@1
       - run: npm run tests-only
 
   node:
