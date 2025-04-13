@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "@babel/polyfill";
 
-import clc from "cli-color";
+import colors from "picocolors";
 import { Command } from "commander";
 import { confirm } from "promptly";
 
@@ -60,7 +60,7 @@ program
   .parse(process.argv);
 
 // Print program name and version (like what Yarn does)
-console.log(clc.bold(`${name} v${version}`));
+console.log(colors.bold(`${name} v${version}`));
 
 // Make sure we're installing at least one package
 if (program.args.length === 0) {
