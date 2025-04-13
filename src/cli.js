@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import "@babel/polyfill";
 
-import colors from "picocolors";
 import { Command } from "commander";
+import colors from "picocolors";
 import { confirm } from "promptly";
 
 import pkg from "../package.json";

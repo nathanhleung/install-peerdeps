@@ -172,6 +172,14 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
   // Remote registry
   return getPackageData({ packageName, packageManager, version })
     .then((data) => {
+      if (Array.isArray(data)) {
+        // If `version` is a range (like `^1.0.0` as opposed to `1.0.0`), the
+        // `info` command returns an array of info objects, one for each
+        // version that matches the range. The last one seems to be the latest
+        // (at least with `npm info`), so we grab that one.
+        data = data[data.length - 1];
+      }
+
       return Promise.resolve(
         findPackageVersion({
           data,
@@ -246,11 +254,13 @@ function installPeerDeps(
     .catch((err) => cb(err))
     .then((data) => {
       // Get peer dependencies for max satisfying version
-      const peerDepsVersionMap = data.peerDependencies;
-      if (typeof peerDepsVersionMap === "undefined") {
-        throw new Error(
-          "The package you are trying to install has no peer " +
-            "dependencies. Use yarn or npm to install it manually."
+      let peerDepsVersionMap = data.peerDependencies;
+      if (!peerDepsVersionMap) {
+        peerDepsVersionMap = {};
+      }
+      if (Object.keys(peerDepsVersionMap).length === 0) {
+        console.warn(
+          "The package you are trying to install has no peer dependencies. Installing anyway."
         );
       }
 
