@@ -1,119 +1,125 @@
+# 3.0.7
+
+- Fixes #142 - issue when installing packages with a version range that `npm info` returns an array for
+- Merges #256 - replace `cli-color` with `picocolors`
+- Merges #221 - fix parsing of `--no-registry` option
+
 # 3.0.6
 
-- Fix NPM install broken by new Yarn code path (`npm npm info` is not a valid `npm` command)
+- Fixes NPM install broken by new Yarn code path (`npm npm info` is not a valid `npm` command)
 
 # 3.0.5
 
-- Merge #255 - fix wrong `info` command in Yarn >1, resolving #215, #249, maybe #171, #193, and #228
+- Merges #255 - fix wrong `info` command in Yarn >1, resolving #215, #249, maybe #171, #193, and #228
 
 # 3.0.4
 
-- Merge #254 - update call to `spawn` due to Node.js security, resolving #252
+- Merges #254 - update call to `spawn` due to Node.js security, resolving #252
 
 # 3.0.3
 
-- Revert quotes around package name
+- Reverts quotes around package name
 
 # 3.0.2
 
-- Merge #126 - don't coerce version strings to semver, quote package names
+- Merges #126 - don't coerce version strings to semver, quote package names
 
 # 3.0.1
 
-- Merge #124 - add .cmd suffix to spawned commands on windows
+- Merges #124 - add .cmd suffix to spawned commands on windows
 
 # 3.0.0
 
-- Merge #85 by @amclin - use package manager to get info, resolving #72 and #73
+- Merges #85 by @amclin - use package manager to get info, resolving #72 and #73
 
 # 2.0.3
 
-- Merge #88 by @cdierkens - set the default registry to the official registry.npmjs.org, resolving #87
+- Merges #88 by @cdierkens - set the default registry to the official registry.npmjs.org, resolving #87
 
 # 2.0.2
 
-- Merge #66 by @marlonicus - fix installation not starting after package manager confirmation, resolving #70
+- Merges #66 by @marlonicus - fix installation not starting after package manager confirmation, resolving #70
 
 # 2.0.1
 
-- Bump [commander](https://www.npmjs.com/package/commander) version
+- Bumps [commander](https://www.npmjs.com/package/commander) version
 
 # 2.0.0
 
-- Bump dependencies
-- Drop support for Node.js below version 8
+- Bumps dependencies
+- Drops support for Node.js below version 8
 
 # 1.11.0
 
-- Resolved #47 - support pnpm
-- Merge #51 by @jaredly - allow installation from linked modules/GitHub, resolving #44
-- Merge #50 by @vladimyr - support both `-D` & `-d` flags for dev mode
-- Merge #49 by @AndreGeng - make sure registry option is passed through, resolving #48
+- Resolves #47 - support pnpm
+- Merges #51 by @jaredly - allow installation from linked modules/GitHub, resolving #44
+- Merges #50 by @vladimyr - support both `-D` & `-d` flags for dev mode
+- Merges #49 by @AndreGeng - make sure registry option is passed through, resolving #48
 
 # 1.10.2
 
-- Fixed #43 - check to see if `--extra-args` is undefined before appending to cli command
+- Fixes #43 - check to see if `--extra-args` is undefined before appending to cli command
 
 # 1.10.1
 
-- Fixed #31 - use [`semver`](https://docs.npmjs.com/misc/semver) to handle version ranges with spaces
+- Fixes #31 - use [`semver`](https://docs.npmjs.com/misc/semver) to handle version ranges with spaces
 
 # 1.10.0
 
-- Addressed #41 - allow extra arguments to be passed with `--extra-args` flag
+- Addresses #41 - allow extra arguments to be passed with `--extra-args` flag
 
 # 1.9.0
 
-- Merge #32 by @nandub - add `--proxy` flag
-- Merge #38 by @gwicksted - add `--global` flag
+- Merges #32 by @nandub - add `--proxy` flag
+- Merges #38 by @gwicksted - add `--global` flag
 
 # 1.8.0
 
-- Merged #29 by @ljharb - convert tests to Tape
+- Merges #29 by @ljharb - convert tests to Tape
 
 # 1.7.1
 
-- Allow Node.js 0.10 test failure due to Jest incompatibility
-- Inline `has-yarn` for compatibility with earlier Node versions
+- Allows Node.js 0.10 test failure due to Jest incompatibility
+- Inlines `has-yarn` for compatibility with earlier Node versions
 
 # 1.7.0
 
-- Fixed #25 - allow version number ranges to be installed
-- Fixed #24 - allow extra args to be passed through with `--`
+- Fixes #25 - allow version number ranges to be installed
+- Fixes #24 - allow extra args to be passed through with `--`
 
 # 1.6.0
 
-- Merged #23 - add option to pass Auth header to install private packages
+- Merges #23 - add option to pass Auth header to install private packages
 
 # 1.5.0
 
-- Fixed #16 - remove trailing slash from registry URI if present
-- Addressed #21 - target older Node (v0.10)
+- Fixes #16 - remove trailing slash from registry URI if present
+- Addresses #21 - target older Node (v0.10)
 
 # 1.4.1
 
-- Merged #18 - update the argument parsing regular expression to account for periods in the package name
+- Merges #18 - update the argument parsing regular expression to account for periods in the package name
 
 # 1.4.0
 
-- Added `--registry` option to specify custom/private package registry
-- Fixed #12 - fix version regular expression to allow dashes in the version name (i.e. packages like `bootstrap@4.0.0-beta` are now installable)
-- Fixed #3 - proxy environments are now supported (Node.js native `http.request([options])` does not seem to support proxy environments; migrated to [request/request](https://github.com/request/request))
-- Migrated from `babel-preset-latest` to `babel-preset-env` targeting Node.js >4.0.0
-- Replace Airbnb formatting rules with `prettier` and `eslint --fix` workflow
+- Adds `--registry` option to specify custom/private package registry
+- Fixes #12 - fix version regular expression to allow dashes in the version name (i.e. packages like `bootstrap@4.0.0-beta` are now installable)
+- Fixes #3 - proxy environments are now supported (Node.js native `http.request([options])` does not seem to support proxy environments; migrated to [request/request](https://github.com/request/request))
+- Migrates from `babel-preset-latest` to `babel-preset-env` targeting Node.js >4.0.0
+- Replaces Airbnb formatting rules with `prettier` and `eslint --fix` workflow
 
 # 1.3.0
 
-- Merged pull request #15 from @brucewpaul - add the explicit `--no-save` option when using NPM (NPM v5 defaults to `--save`)
-- Updated README with build badges, add CONTRIBUTING.md and ROADMAP.md
-- Increased test coverage - added tests for #15 and #10
-- Added `--dry-run` option for testing
+- Merges pull request #15 from @brucewpaul - add the explicit `--no-save` option when using NPM (NPM v5 defaults to `--save`)
+- Updates README with build badges, add CONTRIBUTING.md and ROADMAP.md
+- Increases test coverage - added tests for #15 and #10
+- Adds `--dry-run` option for testing
 
 # 1.2.0
 
-- Merged pull request #10 from @okonet - allow installation of only peers instead of peers and package too
+- Merges pull request #10 from @okonet - allow installation of only peers instead of peers and package too
 
 # 1.1.3
 
-- Started changelog
-- Merged pull request #4 from @lancefisher - handle ranges of peer dependencies
+- Starts changelog
+- Merges pull request #4 from @lancefisher - handle ranges of peer dependencies
