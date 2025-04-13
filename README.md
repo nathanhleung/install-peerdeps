@@ -62,7 +62,7 @@ Options:
   -S, --silent                     If using npm, don't save in package.json
   -Y, --yarn                       Install with Yarn
   -P, --pnpm                       Install with pnpm
-  -n, --no-registry                Do not use a remote registry to find dependencies list
+  -n, --no-registry                Use local node_modules instead of a remote registry to get the list of peerDependencies
   --dry-run                        Do not install packages, but show the install command that will be run
   -x, --extra-args "<extra_args>"  Extra arguments to pass through to the underlying package manager
   -h, --help                       output usage information
