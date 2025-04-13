@@ -47,14 +47,14 @@ const spawnCommand = (command, args) => {
         shell: isWindows
       }
     );
-    cmdProcess.stdout.on("data", chunk => {
+    cmdProcess.stdout.on("data", (chunk) => {
       if (chunk instanceof Buffer) {
         stdout += chunk.toString("utf8");
       } else {
         stdout += chunk;
       }
     });
-    cmdProcess.stderr.on("data", chunk => {
+    cmdProcess.stderr.on("data", (chunk) => {
       if (chunk instanceof Buffer) {
         stderr += chunk.toString("utf8");
       } else {
@@ -62,7 +62,7 @@ const spawnCommand = (command, args) => {
       }
     });
     cmdProcess.on("error", reject);
-    cmdProcess.on("exit", code => {
+    cmdProcess.on("exit", (code) => {
       if (code === 0) {
         resolve(stdout);
       } else {
@@ -77,7 +77,7 @@ const spawnCommand = (command, args) => {
  * @returns {string} - The current Yarn version
  */
 function getYarnVersion() {
-  return spawnCommand("yarn", ["--version"]).then(it => it.trim());
+  return spawnCommand("yarn", ["--version"]).then((it) => it.trim());
 }
 
 /**
@@ -114,21 +114,21 @@ function findPackageVersion({ data, version }) {
 function getPackageData({ packageName, packageManager, version }) {
   const pkgString = version ? `${packageName}@${version}` : packageName;
   return getYarnVersion()
-    .then(yarnVersion => {
+    .then((yarnVersion) => {
       // Only return `yarnVersion` when we're using Yarn
       if (packageManager !== C.yarn) {
         return null;
       }
       return yarnVersion;
     })
-    .catch(err => {
+    .catch((err) => {
       if (packageManager === C.yarn) {
         throw err;
       }
       // If we're not trying to install with Yarn, we won't re-throw and instead will ignore the error and continue
       return null;
     })
-    .then(yarnVersion => {
+    .then((yarnVersion) => {
       // In Yarn versions >= 2, the `yarn info` command was replaced with `yarn npm info`
       const isUsingYarnGreaterThan1 =
         yarnVersion && !yarnVersion.startsWith("1.");
@@ -139,7 +139,7 @@ function getPackageData({ packageName, packageManager, version }) {
         "--json"
       ];
 
-      return spawnCommand(packageManager, args).then(response => {
+      return spawnCommand(packageManager, args).then((response) => {
         const parsed = JSON.parse(response);
 
         // Yarn 1 returns with an extra nested { data } that NPM doesn't
@@ -171,7 +171,7 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
 
   // Remote registry
   return getPackageData({ packageName, packageManager, version })
-    .then(data => {
+    .then((data) => {
       return Promise.resolve(
         findPackageVersion({
           data,
@@ -179,7 +179,7 @@ function getPackageJson({ packageName, noRegistry, packageManager, version }) {
         })
       );
     })
-    .then(version => {
+    .then((version) => {
       return getPackageData({
         packageName,
         packageManager,
@@ -243,8 +243,8 @@ function installPeerDeps(
 ) {
   getPackageJson({ packageName, noRegistry, packageManager, version })
     // Catch before .then because the .then is so long
-    .catch(err => cb(err))
-    .then(data => {
+    .catch((err) => cb(err))
+    .then((data) => {
       // Get peer dependencies for max satisfying version
       const peerDepsVersionMap = data.peerDependencies;
       if (typeof peerDepsVersionMap === "undefined") {
@@ -259,7 +259,7 @@ function installPeerDeps(
       // only its peers.
       let packagesString = onlyPeers ? "" : `${packageName}@${data.version}`;
 
-      const packageList = Object.keys(peerDepsVersionMap).map(name =>
+      const packageList = Object.keys(peerDepsVersionMap).map((name) =>
         getPackageString({
           name,
           version: peerDepsVersionMap[name]
@@ -333,7 +333,7 @@ function installPeerDeps(
       // There's a bug with Yarn 1.0 in which an empty arg
       // causes the install process to fail with a "malformed
       // response from the registry" error
-      args = args.filter(a => a !== "");
+      args = args.filter((a) => a !== "");
 
       //  Show user the command that's running
       const commandString = `${packageManager} ${args.join(" ")}\n`;
@@ -347,7 +347,7 @@ function installPeerDeps(
         console.log(commandString);
         spawnCommand(packageManager, args)
           .then(() => cb(null))
-          .catch(err => cb(err));
+          .catch((err) => cb(err));
       }
     });
 }

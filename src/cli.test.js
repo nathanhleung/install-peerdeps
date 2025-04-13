@@ -6,6 +6,7 @@ import test from "tape";
 /**
  * Spawns the CLI with the provided arguments
  * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @param {string} cwd - the fixtures directory to run the command in
  * @returns {ChildProcess} - an EventEmitter that represents the spawned child process
  */
 function spawnCli(extraArgs, cwd = "sandbox") {
@@ -45,25 +46,26 @@ function spawnCli(extraArgs, cwd = "sandbox") {
  * Gets the resulting install command given the provided arguments
  * @async
  * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @param {string} cwd - the fixtures directory to run the command in
  * @param {boolean} noDryRun - whether to actually run the command or not
  * @returns {Promise<string>} - a Promise which resolves to the resulting install command
  */
-async function getCliInstallCommand(extraArgs) {
+async function getCliInstallCommand(extraArgs, cwd = "sandbox") {
   return new Promise((resolve, reject) => {
     // Always do dry run, so the command is the last
     // non-whitespace line written to stdout
-    const cli = spawnCli([...extraArgs, "--dry-run"]);
+    const cli = spawnCli([...extraArgs, "--dry-run"], cwd);
     const fullstdout = [];
     const fullstderr = [];
-    cli.stdout.on("data", data => {
+    cli.stdout.on("data", (data) => {
       // not guaranteed to be line-by-line in fact these can be Buffers
       fullstdout.push(String(data));
     });
-    cli.stderr.on("data", data => {
+    cli.stderr.on("data", (data) => {
       // not guaranteed to be line-by-line in fact these can be Buffers
       fullstderr.push(String(data));
     });
-    cli.on("close", code => {
+    cli.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(`Unsuccessful exit code. ${fullstderr}`));
       }
@@ -72,19 +74,19 @@ async function getCliInstallCommand(extraArgs) {
       const lines = fullstdout
         .join("")
         .split(/\r?\n/g)
-        .filter(l => !!l.trim());
+        .filter((l) => !!l.trim());
 
       resolve(lines[lines.length - 1]);
     });
     // Make sure to call reject() on error so that the Promise
     // doesn't hang forever
-    cli.on("error", err => reject(err));
+    cli.on("error", (err) => reject(err));
   });
 }
 
-test("errors when more than one package is provided", t => {
+test("errors when more than one package is provided", (t) => {
   const cli = spawnCli(["eslint-config-airbnb", "angular"]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     // We should be able to do t.equal(code, 1), but earlier Node versions
     // handle uncaught exceptions differently so we can't (0.10 returns 8,
     // 0.12 returns 9).
@@ -93,23 +95,23 @@ test("errors when more than one package is provided", t => {
   });
 });
 
-test("errors when no arguments are provided", t => {
+test("errors when no arguments are provided", (t) => {
   const cli = spawnCli([]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
   });
 });
 
-test("errors when the package name argument is formatted incorrectly", t => {
+test("errors when the package name argument is formatted incorrectly", (t) => {
   const cli = spawnCli(["heyhe#@&*()"]);
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
   });
 });
 
-test("only installs peerDependencies when `--only-peers` is specified", async t => {
+test("only installs peerDependencies when `--only-peers` is specified", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
@@ -122,12 +124,12 @@ test("only installs peerDependencies when `--only-peers` is specified", async t 
   }
 });
 
-test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", async t => {
+test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with npm", async (t) => {
   const flags = ["-D", "-d", "--dev"];
   t.plan(flags.length);
   try {
     const commands = await Promise.all(
-      flags.map(flag => getCliInstallCommand(["eslint-config-airbnb", flag]))
+      flags.map((flag) => getCliInstallCommand(["eslint-config-airbnb", flag]))
     );
     commands.forEach((command, i) =>
       t.equal(/ --save-dev\b/.test(command), true, `flag: \`${flags[i]}\``)
@@ -137,7 +139,7 @@ test("adds explicit `--save-dev` flag when using `-D, -d, --dev` with NPM", asyn
   }
 });
 
-test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", async t => {
+test("places `global` as first arg following `yarn` when using yarn and `--global` is specified", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
@@ -151,7 +153,7 @@ test("places `global` as first arg following `yarn` when using yarn and `--globa
   }
 });
 
-test("adds explicit `--global` flag when using `--global` with NPM", async t => {
+test("adds explicit `--global` flag when using `--global` with npm", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
@@ -164,7 +166,7 @@ test("adds explicit `--global` flag when using `--global` with NPM", async t => 
   }
 });
 
-test("does not add `--save` when using `--global` with NPM", async t => {
+test("does not add `--save` when using `--global` with npm", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
@@ -177,7 +179,22 @@ test("does not add `--save` when using `--global` with NPM", async t => {
   }
 });
 
-test("adds an explicit `--no-save` when using `--silent` with NPM", async t => {
+test("grabs peer dependencies from the local `node_modules` directory when using `--no-registry`", async (t) => {
+  t.plan(2);
+  try {
+    const command = await getCliInstallCommand(
+      ["dummy-local-package", "--no-registry"],
+      "no-registry"
+    );
+
+    t.equal(/\sdummy-local-package@/.test(command), true);
+    t.equal(/\sdummy-peer-dependency@\^1\.0\.0\s/.test(command), true);
+  } catch (err) {
+    t.fail(err);
+  }
+});
+
+test("adds an explicit `--no-save` when using `--silent` with npm", async (t) => {
   t.plan(1);
   try {
     const command = await getCliInstallCommand([
@@ -190,12 +207,12 @@ test("adds an explicit `--no-save` when using `--silent` with NPM", async t => {
   }
 });
 
-test("installs with pnpm successfully", t => {
+test("installs with pnpm successfully", (t) => {
   const cli = spawnCli(["eslint-config-airbnb", "--pnpm"], "pnpm");
-  cli.on("data", data => {
+  cli.on("data", (data) => {
     t.comment(data);
   });
-  cli.on("exit", code => {
+  cli.on("exit", (code) => {
     if (code !== 0) {
       t.fail(`CLI exited with error code ${code}`);
     }
