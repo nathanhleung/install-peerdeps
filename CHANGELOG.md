@@ -1,8 +1,8 @@
 # 3.0.7
 
 - Fixes #142 - issue when installing packages with a version range that `npm info` returns an array for
-- Merges #256 - replace `cli-color` with `picocolors`
-- Merges #221 - fix parsing of `--no-registry` option
+- Merges #256 by @JounQin - replace `cli-color` with `picocolors`
+- Merges #221 by @gwokae - fix parsing of `--no-registry` option
 
 # 3.0.6
 
@@ -30,7 +30,7 @@
 
 # 3.0.0
 
-- Merges #85 by @amclin - use package manager to get info, resolving #72 and #73
+- Merges #85 by @developher-net - use package manager to get info, resolving #72 and #73
 
 # 2.0.3
 
@@ -75,7 +75,7 @@
 
 # 1.8.0
 
-- Merges #29 by @ljharb - convert tests to Tape
+- Merges #29 by @ljharb - convert tests to Tape to support older Nodes
 
 # 1.7.1
 
@@ -89,7 +89,7 @@
 
 # 1.6.0
 
-- Merges #23 - add option to pass Auth header to install private packages
+- Merges #23 by @bytheway875 - add option to pass Auth header to install private packages
 
 # 1.5.0
 
@@ -98,7 +98,7 @@
 
 # 1.4.1
 
-- Merges #18 - update the argument parsing regular expression to account for periods in the package name
+- Merges #18 by @brucewpaul - update the argument parsing regular expression to account for periods in the package name
 
 # 1.4.0
 
@@ -110,16 +110,19 @@
 
 # 1.3.0
 
-- Merges pull request #15 from @brucewpaul - add the explicit `--no-save` option when using NPM (NPM v5 defaults to `--save`)
+- Merges #15 by @brucewpaul - add the explicit `--no-save` option when using NPM (NPM v5 defaults to `--save`)
 - Updates README with build badges, add CONTRIBUTING.md and ROADMAP.md
 - Increases test coverage - added tests for #15 and #10
 - Adds `--dry-run` option for testing
 
 # 1.2.0
 
-- Merges pull request #10 from @okonet - allow installation of only peers instead of peers and package too
+- Merges #10 from @okonet - allow installation of only peers instead of peers and package too with new `--only-peers` option
 
 # 1.1.3
 
-- Starts changelog
-- Merges pull request #4 from @lancefisher - handle ranges of peer dependencies
+- Merges pull request #4 from @lancefisher - fixed semver comparator bug to allow handling of ranges of peer dependencies
+
+# <1.1.3
+
+- No changelog
