@@ -43,14 +43,13 @@ function spawnCli(extraArgs, cwd = "sandbox") {
 }
 
 /**
- * Gets the resulting install command given the provided arguments
+ * Gets the resulting CLI dry-run output given the provided arguments
  * @async
  * @param {string[]} extraArgs - arguments to be passed to the CLI
  * @param {string} cwd - the fixtures directory to run the command in
- * @param {boolean} noDryRun - whether to actually run the command or not
- * @returns {Promise<string>} - a Promise which resolves to the resulting install command
+ * @returns {Promise<[number, string, string]>} - a Promise which resolves to an array contaning [exit code, stderr, stdout]
  */
-async function getCliInstallCommand(extraArgs, cwd = "sandbox") {
+async function getCliOutput(extraArgs, cwd = "sandbox") {
   return new Promise((resolve, reject) => {
     // Always do dry run, so the command is the last
     // non-whitespace line written to stdout
@@ -66,22 +65,32 @@ async function getCliInstallCommand(extraArgs, cwd = "sandbox") {
       fullstderr.push(String(data));
     });
     cli.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`Unsuccessful exit code. ${fullstderr}`));
-      }
-      // The command will be the last non-whitespace line written to
-      // stdout by the cli during a dry run
-      const lines = fullstdout
-        .join("")
-        .split(/\r?\n/g)
-        .filter((l) => !!l.trim());
-
-      resolve(lines[lines.length - 1]);
+      resolve([code, fullstderr.join(""), fullstdout.join("")]);
     });
     // Make sure to call reject() on error so that the Promise
     // doesn't hang forever
     cli.on("error", (err) => reject(err));
   });
+}
+
+/**
+ * Gets the resulting dry-run install command given the provided arguments
+ * @async
+ * @param {string[]} extraArgs - arguments to be passed to the CLI
+ * @param {string} cwd - the fixtures directory to run the command in
+ * @returns {Promise<string>} - a Promise which resolves to the resulting install command
+ */
+async function getCliInstallCommand(extraArgs, cwd = "sandbox") {
+  const [code, stderr, stdout] = await getCliOutput(extraArgs, cwd);
+  if (code !== 0) {
+    throw new Error(`Unsuccessful exit code. ${stderr}`);
+  }
+
+  // The command will be the last non-whitespace line written to
+  // stdout by the cli during a dry run
+  const lines = stdout.split(/\r?\n/g).filter((l) => !!l.trim());
+
+  return lines[lines.length - 1];
 }
 
 test("errors when more than one package is provided", (t) => {
@@ -109,6 +118,27 @@ test("errors when the package name argument is formatted incorrectly", (t) => {
     t.notEqual(code, 0, `errored, exit code was ${code}`);
     t.end();
   });
+});
+
+test("installs a package with no peer dependencies without errors, but prints a warning", async (t) => {
+  t.plan(2);
+  try {
+    const [, stderr] = await getCliOutput(["postcss@^8.1.0"]);
+    t.equal(/\bno peer dependencies\b/i.test(stderr), true);
+    t.equal(/\binstalling anyway\b/i.test(stderr), true);
+  } catch (err) {
+    t.fail(err);
+  }
+});
+
+test("installs successfully when a version range is provided that results in `npm info` returning an array", async (t) => {
+  t.plan(1);
+  try {
+    const command = await getCliInstallCommand(["postcss@^8.1.0"]);
+    t.equal(/\bpostcss\b/.test(command), true);
+  } catch (err) {
+    t.fail(err);
+  }
 });
 
 test("only installs peerDependencies when `--only-peers` is specified", async (t) => {
