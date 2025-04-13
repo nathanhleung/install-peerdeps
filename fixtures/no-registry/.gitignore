@@ -1,0 +1,4 @@
+# This weird order is required because of the way Git recursively ignores
+# directories. We need to re-include the parent `node_modules` first.
+!/node_modules
+!/node_modules/dummy-local-package/package.json
